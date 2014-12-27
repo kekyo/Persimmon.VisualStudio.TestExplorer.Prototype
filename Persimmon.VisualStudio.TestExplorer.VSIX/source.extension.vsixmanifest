@@ -2,23 +2,25 @@
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
   <Metadata>
     <Identity Id="Persimmon.VisualStudio.TestExplorer.persimmon-projects.c35f7015-465a-456a-801e-210ab907210d" Version="1.0.0" Language="en-US" Publisher="persimmon-projects" />
-    <DisplayName>Persimmon.VisualStudio.TestExplorer</DisplayName>
+    <DisplayName>Persimmon Test Explorer</DisplayName>
     <Description xml:space="preserve">Visual Studio runner for Persimmon.</Description>
     <MoreInfo>https://github.com/persimmon-projects/Persimmon.VisualStudio.TestExplorer</MoreInfo>
     <License>LICENSE.txt</License>
     <Icon>persimmon.ico</Icon>
+    <Tags>Unit Testing, Testing, test explorer, Test Adapter</Tags>
   </Metadata>
   <Installation>
-    <InstallationTarget Id="Microsoft.VisualStudio.Pro" Version="[11.0]" />
-    <InstallationTarget Version="[12.0,13.0)" Id="Microsoft.VisualStudio.Pro" />
+    <InstallationTarget Id="Microsoft.VisualStudio.Pro" Version="[12.0,13.0)" />
+    <InstallationTarget Id="Microsoft.VisualStudio.Pro" Version="[13.0,15.0)" />
   </Installation>
   <Dependencies>
-    <Dependency Id="Microsoft.Framework.NDP" DisplayName="Microsoft .NET Framework" d:Source="Manual" Version="[4.5,)" />
-    <Dependency d:Source="Installed" Id="Microsoft.VisualStudio.MPF.11.0" DisplayName="Visual Studio MPF 11.0" Version="[11.0,12.0)" />
+    <Dependency Id="Microsoft.Framework.NDP" DisplayName="Microsoft .NET Framework" d:Source="Manual" Version="4.5" />
   </Dependencies>
   <Assets>
     <Asset Type="Microsoft.VisualStudio.MefComponent" d:Source="Project" d:ProjectName="Persimmon.VisualStudio.TestExplorer" Path="|Persimmon.VisualStudio.TestExplorer|" />
     <Asset Type="UnitTestExtension" d:Source="Project" d:ProjectName="Persimmon.VisualStudio.TestExplorer" Path="|Persimmon.VisualStudio.TestExplorer|" />
     <Asset Type="Microsoft.VisualStudio.VsPackage" d:Source="Project" d:ProjectName="%CurrentProject%" Path="|%CurrentProject%;PkgdefProjectOutputGroup|" />
+    <Asset Type="Microsoft.VisualStudio.Assembly" d:Source="Project" d:ProjectName="Persimmon.Runner.Wrapper" Path="|Persimmon.Runner.Wrapper;AssemblyName|" />
+    <Asset Type="Application Settings Configuration file" d:Source="File" Path="app.config" />
   </Assets>
 </PackageManifest>

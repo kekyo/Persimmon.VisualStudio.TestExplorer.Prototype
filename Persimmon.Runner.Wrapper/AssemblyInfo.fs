@@ -3,9 +3,9 @@
 open System.Reflection
 open System.Runtime.InteropServices
 
-[<assembly: AssemblyTitle("Persimmon.VisualStudio.TestExplorer")>]
-[<assembly: AssemblyProduct("Persimmon.VisualStudio.TestExplorer")>]
-[<assembly: Guid("B98A19EB-08D8-42CA-8102-7EE41C7EBC61")>]
+[<assembly: AssemblyTitle("Persimmon.Runner.Wrapper")>]
+[<assembly: AssemblyProduct("Persimmon.Runner.Wrapper")>]
+[<assembly: Guid("152bb9b3-89a3-4edc-b9d1-17bf3a03ce8e")>]
 
 [<assembly: AssemblyVersion("1.0.0")>]
 [<assembly: AssemblyFileVersion("1.0.0")>]
