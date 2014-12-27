@@ -6,6 +6,7 @@
     <Description xml:space="preserve">Visual Studio runner for Persimmon.</Description>
     <MoreInfo>https://github.com/persimmon-projects/Persimmon.VisualStudio.TestExplorer</MoreInfo>
     <License>LICENSE.txt</License>
+    <Icon>persimmon.ico</Icon>
   </Metadata>
   <Installation>
     <InstallationTarget Id="Microsoft.VisualStudio.Pro" Version="[11.0]" />
