@@ -1,6 +1,7 @@
 ﻿namespace Persimmon.Runner.Wrapper
 
 open System
+open System.Linq
 open System.Collections.Generic
 open System.Reflection
 
@@ -70,13 +71,16 @@ module private TestCollectorImpl =
 
 type TestCollector() =
   inherit MarshalByRefObject()
-  member __.CollectRootTestObjects (asms: IEnumerable<Assembly>): IEnumerable<TestCase> =
-    asms
-    |> Seq.collect (fun s ->
-      s
-      |> TestCollectorImpl.publicTypes
-      |> Seq.collect TestCollectorImpl.testObjects
-      |> Seq.map (TestCase.ofTestObject s.FullName)
-    )
+  member __.CollectRootTestObjects (asms: ResizeArray<string>): ResizeArray<TestCase> =
+    let results =
+      asms
+      |> Seq.collect (fun s ->
+        let asm = s |> RuntimeUtil.Runtime.loadAssembly
+        asm
+        |> TestCollectorImpl.publicTypes
+        |> Seq.collect TestCollectorImpl.testObjects
+        |> Seq.map (TestCase.ofTestObject asm.FullName)
+      )
+    results.ToList()
   interface IExecutor<TestCase> with
     member this.Execute(asms) = this.CollectRootTestObjects(asms)

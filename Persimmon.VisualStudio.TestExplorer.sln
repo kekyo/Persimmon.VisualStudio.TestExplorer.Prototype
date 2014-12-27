@@ -18,6 +18,8 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Persimmon.VisualStudio.Test
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Persimmon.Runner.Wrapper", "Persimmon.Runner.Wrapper\Persimmon.Runner.Wrapper.fsproj", "{152BB9B3-89A3-4EDC-B9D1-17BF3A03CE8E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Persimmon.VisualStudio.TestExplorer2", "Persimmon.VisualStudio.TestExplorer2\Persimmon.VisualStudio.TestExplorer2.csproj", "{5916B5F3-BBCA-44DE-8A3D-AF7548A5CAC5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -40,6 +42,10 @@ Global
 		{152BB9B3-89A3-4EDC-B9D1-17BF3A03CE8E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{152BB9B3-89A3-4EDC-B9D1-17BF3A03CE8E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{152BB9B3-89A3-4EDC-B9D1-17BF3A03CE8E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5916B5F3-BBCA-44DE-8A3D-AF7548A5CAC5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5916B5F3-BBCA-44DE-8A3D-AF7548A5CAC5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5916B5F3-BBCA-44DE-8A3D-AF7548A5CAC5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5916B5F3-BBCA-44DE-8A3D-AF7548A5CAC5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

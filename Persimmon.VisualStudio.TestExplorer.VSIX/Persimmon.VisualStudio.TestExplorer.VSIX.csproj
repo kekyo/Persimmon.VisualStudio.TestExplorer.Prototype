@@ -68,9 +68,9 @@
       <IncludeOutputGroupsInVSIX>BuiltProjectOutputGroup%3bBuiltProjectOutputGroupDependencies%3bGetCopyToOutputDirectoryItems%3bSatelliteDllsProjectOutputGroup%3b</IncludeOutputGroupsInVSIX>
       <IncludeOutputGroupsInVSIXLocalOnly>DebugSymbolsProjectOutputGroup%3b</IncludeOutputGroupsInVSIXLocalOnly>
     </ProjectReference>
-    <ProjectReference Include="..\Persimmon.VisualStudio.TestExplorer\Persimmon.VisualStudio.TestExplorer.fsproj">
-      <Project>{96ca0c4b-a723-4042-8f67-ab73ca5c3ac3}</Project>
-      <Name>Persimmon.VisualStudio.TestExplorer</Name>
+    <ProjectReference Include="..\Persimmon.VisualStudio.TestExplorer2\Persimmon.VisualStudio.TestExplorer2.csproj">
+      <Project>{5916b5f3-bbca-44de-8a3d-af7548a5cac5}</Project>
+      <Name>Persimmon.VisualStudio.TestExplorer2</Name>
       <IncludeOutputGroupsInVSIX>BuiltProjectOutputGroup%3bBuiltProjectOutputGroupDependencies%3bGetCopyToOutputDirectoryItems%3bSatelliteDllsProjectOutputGroup%3b</IncludeOutputGroupsInVSIX>
       <IncludeOutputGroupsInVSIXLocalOnly>DebugSymbolsProjectOutputGroup%3b</IncludeOutputGroupsInVSIXLocalOnly>
     </ProjectReference>
