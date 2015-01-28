@@ -61,7 +61,7 @@ module private Formatter =
       }
   | TestResult tr ->
       match tr with
-      | Error (meta, es, res) ->
+      | Error (meta, es, res, _) ->
           seq {
             let indent = indentStr indent
             yield indent + "FATAL ERROR: " + meta.FullName
@@ -71,7 +71,7 @@ module private Formatter =
             yield indent + (bar (70 - indent.Length) '-' "exceptions")
             yield! es |> List.rev |> exnsToStrs indent
           }
-      | Done (meta, res) ->
+      | Done (meta, res, _) ->
           seq {
             let indent = indentStr indent
             match res |> AssertionResult.NonEmptyList.typicalResult with
@@ -111,29 +111,38 @@ module VSTestResult =
       else res) TestOutcome.None
   | TestResult tr ->
     match tr with
-    | Error(_, _, a) -> a |> List.map NotPassed |> assertionsToTestOutcome
-    | Done(_, a) -> a |> NonEmptyList.toList  |> assertionsToTestOutcome
+    | Error(_, _, a, _) -> a |> List.map NotPassed |> assertionsToTestOutcome
+    | Done(_, a, _) -> a |> NonEmptyList.toList  |> assertionsToTestOutcome
 
   let rec private collectException = function
   | EndMarker -> []
   | ContextResult ctx -> ctx.Children |> List.collect collectException
   | TestResult tr ->
     match tr with
-    | Error(_, el, _) -> el
+    | Error(_, el, _, _) -> el
     | _ -> []
 
   let private appendStrs xs = Seq.fold (fun acc s -> sprintf "%s%s%s" acc s Environment.NewLine) "" xs
 
+  let rec private collectDuration = function
+  | EndMarker -> TimeSpan.Zero
+  | ContextResult ctx -> ctx.Children |> List.map collectDuration |> List.fold (+) TimeSpan.Zero
+  | TestResult tr ->
+    match tr with
+    | Error(_, _, _, d)
+    | Done(_, _, d) -> d
+
   let ofPersimmonTestResult case result =
     let msg = result |> Formatter.toStrs 0 |> appendStrs
     let trace = result |> collectException |> Formatter.exnsToStrs (Formatter.indentStr 0) |> appendStrs
+    let d = collectDuration result
     let outcome = resultToTestOutcome result
-    // TODO: Duration
     let result =
       TestResult(
         case,
         DisplayName = case.DisplayName,
-        Outcome = outcome)
+        Outcome = outcome,
+        Duration = d)
     if String.IsNullOrEmpty(msg) then result.ErrorMessage <- msg
     if String.IsNullOrEmpty(trace) then result.ErrorStackTrace <- msg
     result
