@@ -21,6 +21,5 @@
     <Asset Type="UnitTestExtension" d:Source="Project" d:ProjectName="Persimmon.VisualStudio.TestExplorer" Path="|Persimmon.VisualStudio.TestExplorer|" />
     <Asset Type="Microsoft.VisualStudio.VsPackage" d:Source="Project" d:ProjectName="%CurrentProject%" Path="|%CurrentProject%;PkgdefProjectOutputGroup|" />
     <Asset Type="Microsoft.VisualStudio.Assembly" d:Source="Project" d:ProjectName="Persimmon.Runner.Wrapper" Path="|Persimmon.Runner.Wrapper;AssemblyName|" />
-    <Asset Type="Application Settings Configuration file" d:Source="File" Path="app.config" />
   </Assets>
 </PackageManifest>
