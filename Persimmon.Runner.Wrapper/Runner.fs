@@ -28,3 +28,5 @@ type TestRunner() =
       |> Seq.map (fun x -> (TestCase.ofTestObject s.FullName x, snd x))
     )
     |> Seq.map (fun (c, o) -> (c, o |> TestRunnerImpl.runTests |> TestResult.ofITestResult c))
+  interface IExecutor<TestCase * TestResult> with
+    member this.Execute(asms) = this.RunAllTests(asms)

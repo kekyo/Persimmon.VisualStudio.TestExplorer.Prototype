@@ -70,7 +70,6 @@ module private TestCollectorImpl =
 
 type TestCollector() =
   inherit MarshalByRefObject()
-
   member __.CollectRootTestObjects (asms: IEnumerable<Assembly>): IEnumerable<TestCase> =
     asms
     |> Seq.collect (fun s ->
@@ -79,3 +78,5 @@ type TestCollector() =
       |> Seq.collect TestCollectorImpl.testObjects
       |> Seq.map (TestCase.ofTestObject s.FullName)
     )
+  interface IExecutor<TestCase> with
+    member this.Execute(asms) = this.CollectRootTestObjects(asms)
