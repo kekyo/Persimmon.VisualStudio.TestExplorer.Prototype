@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.23107.0
+# Visual Studio 2013
+VisualStudioVersion = 12.0.40629.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{36C8830B-953C-4EC6-90D8-66ED31E021FE}"
 	ProjectSection(SolutionItems) = preProject
@@ -17,6 +17,11 @@ EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Persimmon.VisualStudio.TestExplorer.Tests", "Persimmon.VisualStudio.TestExplorer.Tests\Persimmon.VisualStudio.TestExplorer.Tests.fsproj", "{9525A203-3D88-4679-82C1-6F332F74840F}"
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Persimmon.Runner.Wrapper", "Persimmon.Runner.Wrapper\Persimmon.Runner.Wrapper.fsproj", "{152BB9B3-89A3-4EDC-B9D1-17BF3A03CE8E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{90E1AF9E-9A15-47FB-8939-A86A264A812E}"
+	ProjectSection(SolutionItems) = preProject
+		README.md = README.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
