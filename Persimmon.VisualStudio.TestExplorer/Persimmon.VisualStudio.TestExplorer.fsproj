@@ -73,9 +73,9 @@
       <Private>False</Private>
     </Reference>
     <Reference Include="mscorlib" />
-    <Reference Include="Persimmon, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Persimmon.1.0.0-beta8\lib\net20\Persimmon.dll</HintPath>
+    <Reference Include="Persimmon">
+      <HintPath>..\packages\Persimmon.1.0.2\lib\net20\Persimmon.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
