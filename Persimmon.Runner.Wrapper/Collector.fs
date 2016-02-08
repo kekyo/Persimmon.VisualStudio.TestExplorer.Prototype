@@ -68,8 +68,41 @@ module private TestCollectorImpl =
         else yield (nestedType, Context(nestedType.Name, objs |> Seq.toList) :> TestObject)
     }
 
-type TestCollector() =
-  inherit MarshalByRefObject()
+type internal NativeMethods() =
+    
+  [<System.Runtime.InteropServices.DllImport("kernel32.dll")>]
+  static extern int GetCurrentProcessId()
+
+  [<System.Runtime.InteropServices.DllImport("kernel32.dll")>]
+  static extern int GetCurrentThreadId()
+
+  [<System.Runtime.InteropServices.DllImport("user32.dll", CharSet=System.Runtime.InteropServices.CharSet.Auto)>]
+  static extern int MessageBox(IntPtr hWnd, string text, string caption, int options)
+
+  static member GCPI() =
+    GetCurrentProcessId()
+
+  static member GCTI() =
+    GetCurrentThreadId()
+
+  static member MB(hWnd: IntPtr, text: string, caption: string, options:int) =
+    MessageBox(hWnd, text, caption, options)
+
+type TestCollector =
+  inherit MarshalByRefObject
+
+  new () =
+    let pid = NativeMethods.GCPI()
+    let tid = NativeMethods.GCTI()
+    let mtid = System.Threading.Thread.CurrentThread.ManagedThreadId
+    let currentAppDomain = AppDomain.CurrentDomain
+    let adid = currentAppDomain.Id
+    let result = NativeMethods.MB(IntPtr.Zero, "Wait on TestCollector.ctor()...", String.Format("Persimmon ({0}:{1}:{2}:{3})", pid, tid, mtid, adid), 0)
+    let assembly = Assembly.GetExecutingAssembly()
+    let fullPath = assembly.Location
+    let directory = IO.Path.GetDirectoryName(fullPath)
+    { inherit MarshalByRefObject() }
+
   member __.CollectRootTestObjects (asms: IEnumerable<Assembly>): IEnumerable<TestCase> =
     asms
     |> Seq.collect (fun s ->

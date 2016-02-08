@@ -12,6 +12,12 @@
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
     <RestorePackages>true</RestorePackages>
   </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>true</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>..\Persimmon.VisualStudio.TestExplorer.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -58,6 +64,9 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="App.config" />
+    <None Include="..\Persimmon.VisualStudio.TestExplorer.snk">
+      <Link>Properties\Persimmon.VisualStudio.TestExplorer.snk</Link>
+    </None>
     <None Include="packages.config" />
     <Content Include="Persimmon.VisualStudio.TestExplorer.dll.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

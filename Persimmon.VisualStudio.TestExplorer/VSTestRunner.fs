@@ -31,8 +31,24 @@ type VSTestRunner() =
       |> runner.Execute
       |> Seq.map (fun (c, r) -> VSTestResult.ofWrapperTestResult (VSTestCase.ofWrapperTestCase c) r)
 
+  [<System.Runtime.InteropServices.DllImport("kernel32.dll")>]
+  static extern int GetCurrentProcessId()
+
+  [<System.Runtime.InteropServices.DllImport("kernel32.dll")>]
+  static extern int GetCurrentThreadId()
+
+  [<System.Runtime.InteropServices.DllImport("user32.dll", CharSet=System.Runtime.InteropServices.CharSet.Auto)>]
+  static extern int MessageBox(IntPtr hWnd, string text, string caption, int options)
+
   member __.Run<'T>(typeName: string, f: Persimmon.Runner.Wrapper.IExecutor<'T> -> unit) =
-    let fullPath = Assembly.GetExecutingAssembly().Location
+    let pid = GetCurrentProcessId()
+    let tid = GetCurrentThreadId()
+    let mtid = System.Threading.Thread.CurrentThread.ManagedThreadId
+    let currentAppDomain = AppDomain.CurrentDomain
+    let adid = currentAppDomain.Id
+    let result = MessageBox(IntPtr.Zero, "Wait on VSTestRunner.Run()...", String.Format("Persimmon ({0}:{1}:{2}:{3})", pid, tid, mtid, adid), 0)
+    let assembly = Assembly.GetExecutingAssembly()
+    let fullPath = assembly.Location
     let directory = IO.Path.GetDirectoryName(fullPath)
     let setup = AppDomainSetup(LoaderOptimization = System.LoaderOptimization.MultiDomain, PrivateBinPath = directory, ApplicationBase = directory, DisallowBindingRedirects = true)
     let evidence = AppDomain.CurrentDomain.Evidence
@@ -44,6 +60,8 @@ type VSTestRunner() =
       AppDomain.Unload(appDomain)
 
   member this.DiscoverTests(sources: string seq, sink: ITestCaseDiscoverySink) =
+    let currentAppDomain = AppDomain.CurrentDomain
+    let assembly = Assembly.GetExecutingAssembly()
     this.Run("Persimmon.Runner.Wrapper.TestCollector", fun collector ->
       sources
       |> collectTestCase collector
