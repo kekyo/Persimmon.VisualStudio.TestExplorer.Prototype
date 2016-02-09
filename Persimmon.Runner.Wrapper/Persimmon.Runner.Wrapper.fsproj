@@ -9,11 +9,11 @@
     <OutputType>Library</OutputType>
     <RootNamespace>Persimmon.Runner.Wrapper</RootNamespace>
     <AssemblyName>Persimmon.Runner.Wrapper</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <TargetFSharpCoreVersion>4.4.0.0</TargetFSharpCoreVersion>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Name>Persimmon.Runner.Wrapper</Name>
-    <TargetFrameworkProfile />
+    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
     <RestorePackages>true</RestorePackages>
   </PropertyGroup>
@@ -75,6 +75,7 @@
     <None Include="..\Persimmon.VisualStudio.TestExplorer.snk">
       <Link>Persimmon.VisualStudio.TestExplorer.snk</Link>
     </None>
+    <Content Include="App.config" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FSharp.Core, Version=4.4.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">

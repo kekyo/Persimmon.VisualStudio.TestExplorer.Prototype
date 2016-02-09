@@ -3,6 +3,7 @@
 open System
 open System.Collections.Generic
 open System.Reflection
+open Microsoft.FSharp.Collections
 
 module private TestCollectorImpl =
 
@@ -99,19 +100,29 @@ type TestCollector =
     let currentAppDomain = AppDomain.CurrentDomain
     let assembly = Assembly.GetExecutingAssembly()
 #endif
-    { inherit MarshalByRefObject() }
+    {
+        inherit MarshalByRefObject()
+    }
+    then
+        let assemblyResolveHandler = new ResolveEventHandler(fun s e ->
+            System.Diagnostics.Debugger.Break()
+            null)
+        AppDomain.CurrentDomain.add_AssemblyResolve assemblyResolveHandler
 
-  member __.CollectRootTestObjects asms =
+  member __.CollectRootTestObjects (names: AssemblyName seq) =
 #if DEBUG
     let currentAppDomain = AppDomain.CurrentDomain
     let assembly = Assembly.GetExecutingAssembly()
+    let currentFSharpFuncType = typedefof<FSharpFunc<obj, obj>>
+    let currentFSharpCore = currentFSharpFuncType.Assembly
 #endif
-    asms
-    |> Seq.collect (fun s ->
-      s
+    names
+    |> Seq.collect (fun name ->
+      name
+      |> Assembly.Load
       |> TestCollectorImpl.publicTypes
       |> Seq.collect TestCollectorImpl.testObjects
-      |> Seq.map (TestCase.ofTestObject s.FullName)
+      |> Seq.map (TestCase.ofTestObject name.FullName)
     )
   interface IExecutor<TestCase> with
-    member this.Execute(asms) = this.CollectRootTestObjects(asms) |> Seq.toArray
+    member this.Execute(names) = this.CollectRootTestObjects(names) |> Seq.toArray
