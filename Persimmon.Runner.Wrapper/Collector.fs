@@ -68,42 +68,44 @@ module private TestCollectorImpl =
         else yield (nestedType, Context(nestedType.Name, objs |> Seq.toList) :> TestObject)
     }
 
-type internal NativeMethods() =
+#if DEBUG
+[<Sealed>]
+type internal NativeMethods private () =
     
   [<System.Runtime.InteropServices.DllImport("kernel32.dll")>]
-  static extern int GetCurrentProcessId()
+  static extern int private GetCurrentProcessId()
 
   [<System.Runtime.InteropServices.DllImport("kernel32.dll")>]
-  static extern int GetCurrentThreadId()
+  static extern int private GetCurrentThreadId()
 
   [<System.Runtime.InteropServices.DllImport("user32.dll", CharSet=System.Runtime.InteropServices.CharSet.Auto)>]
-  static extern int MessageBox(IntPtr hWnd, string text, string caption, int options)
+  static extern int private MessageBox(IntPtr hWnd, string text, string caption, int options)
 
-  static member GCPI() =
-    GetCurrentProcessId()
-
-  static member GCTI() =
-    GetCurrentThreadId()
-
-  static member MB(hWnd: IntPtr, text: string, caption: string, options:int) =
-    MessageBox(hWnd, text, caption, options)
+  static member public ShowWaitingMessageBox(text: string) =
+    let pid = GetCurrentProcessId()
+    let tid = GetCurrentThreadId()
+    let mtid = System.Threading.Thread.CurrentThread.ManagedThreadId
+    let currentAppDomain = AppDomain.CurrentDomain
+    let adid = currentAppDomain.Id
+    MessageBox(IntPtr.Zero, text, String.Format("Persimmon ({0}:{1}:{2}:{3})", pid, tid, mtid, adid), 0)
+#endif
 
 type TestCollector =
   inherit MarshalByRefObject
 
   new () =
-    let pid = NativeMethods.GCPI()
-    let tid = NativeMethods.GCTI()
-    let mtid = System.Threading.Thread.CurrentThread.ManagedThreadId
+#if DEBUG
+    let result = NativeMethods.ShowWaitingMessageBox("Wait on TestCollector.ctor()...")
     let currentAppDomain = AppDomain.CurrentDomain
-    let adid = currentAppDomain.Id
-    let result = NativeMethods.MB(IntPtr.Zero, "Wait on TestCollector.ctor()...", String.Format("Persimmon ({0}:{1}:{2}:{3})", pid, tid, mtid, adid), 0)
     let assembly = Assembly.GetExecutingAssembly()
-    let fullPath = assembly.Location
-    let directory = IO.Path.GetDirectoryName(fullPath)
+#endif
     { inherit MarshalByRefObject() }
 
-  member __.CollectRootTestObjects (asms: IEnumerable<Assembly>): IEnumerable<TestCase> =
+  member __.CollectRootTestObjects asms =
+#if DEBUG
+    let currentAppDomain = AppDomain.CurrentDomain
+    let assembly = Assembly.GetExecutingAssembly()
+#endif
     asms
     |> Seq.collect (fun s ->
       s
@@ -112,4 +114,4 @@ type TestCollector =
       |> Seq.map (TestCase.ofTestObject s.FullName)
     )
   interface IExecutor<TestCase> with
-    member this.Execute(asms) = this.CollectRootTestObjects(asms)
+    member this.Execute(asms) = this.CollectRootTestObjects(asms) |> Seq.toArray

@@ -19,7 +19,7 @@ module private TestRunnerImpl =
 
 type TestRunner() =
   inherit MarshalByRefObject()
-  member __.RunAllTests(asms: IEnumerable<Assembly>) =
+  member __.RunAllTests(asms: Assembly[]) =
     asms
     |> Seq.collect (fun s ->
       s
@@ -28,5 +28,6 @@ type TestRunner() =
       |> Seq.map (fun x -> (TestCase.ofTestObject s.FullName x, snd x))
     )
     |> Seq.map (fun (c, o) -> (c, o |> TestRunnerImpl.runTests |> TestResult.ofITestResult c))
+    |> Seq.toArray
   interface IExecutor<TestCase * TestResult> with
     member this.Execute(asms) = this.RunAllTests(asms)

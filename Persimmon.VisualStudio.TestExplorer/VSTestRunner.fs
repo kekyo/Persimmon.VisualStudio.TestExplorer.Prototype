@@ -4,6 +4,7 @@ open Microsoft.VisualStudio.TestPlatform.ObjectModel
 open Microsoft.VisualStudio.TestPlatform.ObjectModel.Adapter
 open System
 open System.Reflection
+open Persimmon.Runner.Wrapper
 
 type VSTestRunner() =
   inherit MarshalByRefObject()
@@ -21,6 +22,7 @@ type VSTestRunner() =
       sources
       |> Seq.filter (fun (x: string) -> persimmonFamilies |> List.exists (fun y -> x.EndsWith(y)) |> not)
       |> Seq.map loadAssembly
+      |> Seq.toArray
       |> collector.Execute
       |> Seq.map VSTestCase.ofWrapperTestCase
 
@@ -28,25 +30,15 @@ type VSTestRunner() =
       sources
       |> Seq.filter (fun (x: string) -> persimmonFamilies |> List.exists (fun y -> x.EndsWith(y)) |> not)
       |> Seq.map loadAssembly
+      |> Seq.toArray
       |> runner.Execute
       |> Seq.map (fun (c, r) -> VSTestResult.ofWrapperTestResult (VSTestCase.ofWrapperTestCase c) r)
 
-  [<System.Runtime.InteropServices.DllImport("kernel32.dll")>]
-  static extern int GetCurrentProcessId()
-
-  [<System.Runtime.InteropServices.DllImport("kernel32.dll")>]
-  static extern int GetCurrentThreadId()
-
-  [<System.Runtime.InteropServices.DllImport("user32.dll", CharSet=System.Runtime.InteropServices.CharSet.Auto)>]
-  static extern int MessageBox(IntPtr hWnd, string text, string caption, int options)
-
   member __.Run<'T>(typeName: string, f: Persimmon.Runner.Wrapper.IExecutor<'T> -> unit) =
-    let pid = GetCurrentProcessId()
-    let tid = GetCurrentThreadId()
-    let mtid = System.Threading.Thread.CurrentThread.ManagedThreadId
+#if DEBUG
+    let result = NativeMethods.ShowWaitingMessageBox("Wait on VSTestRunner.Run()...")
     let currentAppDomain = AppDomain.CurrentDomain
-    let adid = currentAppDomain.Id
-    let result = MessageBox(IntPtr.Zero, "Wait on VSTestRunner.Run()...", String.Format("Persimmon ({0}:{1}:{2}:{3})", pid, tid, mtid, adid), 0)
+#endif
     let assembly = Assembly.GetExecutingAssembly()
     let fullPath = assembly.Location
     let directory = IO.Path.GetDirectoryName(fullPath)
@@ -60,8 +52,10 @@ type VSTestRunner() =
       AppDomain.Unload(appDomain)
 
   member this.DiscoverTests(sources: string seq, sink: ITestCaseDiscoverySink) =
+#if DEBUG
     let currentAppDomain = AppDomain.CurrentDomain
     let assembly = Assembly.GetExecutingAssembly()
+#endif
     this.Run("Persimmon.Runner.Wrapper.TestCollector", fun collector ->
       sources
       |> collectTestCase collector
