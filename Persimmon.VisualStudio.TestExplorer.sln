@@ -10,17 +10,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{36C883
 		.nuget\NuGet.targets = .nuget\NuGet.targets
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Persimmon.VisualStudio.TestExplorer.VSIX", "Persimmon.VisualStudio.TestExplorer.VSIX\Persimmon.VisualStudio.TestExplorer.VSIX.csproj", "{4F2D32B2-0CC1-48E2-A186-81188BEB2A64}"
-EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Persimmon.VisualStudio.TestExplorer", "Persimmon.VisualStudio.TestExplorer\Persimmon.VisualStudio.TestExplorer.fsproj", "{96CA0C4B-A723-4042-8F67-AB73CA5C3AC3}"
-EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Persimmon.VisualStudio.TestExplorer.Tests", "Persimmon.VisualStudio.TestExplorer.Tests\Persimmon.VisualStudio.TestExplorer.Tests.fsproj", "{9525A203-3D88-4679-82C1-6F332F74840F}"
-EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Persimmon.Runner.Wrapper", "Persimmon.Runner.Wrapper\Persimmon.Runner.Wrapper.fsproj", "{152BB9B3-89A3-4EDC-B9D1-17BF3A03CE8E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Persimmon.VisualStudio.TestExplorer", "Persimmon.VisualStudio.TestExplorer\Persimmon.VisualStudio.TestExplorer.csproj", "{4F2D32B2-0CC1-48E2-A186-81188BEB2A64}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{90E1AF9E-9A15-47FB-8939-A86A264A812E}"
 	ProjectSection(SolutionItems) = preProject
 		.gitignore = .gitignore
+		CommonAssemblyInfo.cs = CommonAssemblyInfo.cs
 		Persimmon.VisualStudio.TestExplorer.snk = Persimmon.VisualStudio.TestExplorer.snk
 		README.md = README.md
 	EndProjectSection
@@ -39,18 +34,6 @@ Global
 		{4F2D32B2-0CC1-48E2-A186-81188BEB2A64}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4F2D32B2-0CC1-48E2-A186-81188BEB2A64}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4F2D32B2-0CC1-48E2-A186-81188BEB2A64}.Release|Any CPU.Build.0 = Release|Any CPU
-		{96CA0C4B-A723-4042-8F67-AB73CA5C3AC3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{96CA0C4B-A723-4042-8F67-AB73CA5C3AC3}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{96CA0C4B-A723-4042-8F67-AB73CA5C3AC3}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{96CA0C4B-A723-4042-8F67-AB73CA5C3AC3}.Release|Any CPU.Build.0 = Release|Any CPU
-		{9525A203-3D88-4679-82C1-6F332F74840F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9525A203-3D88-4679-82C1-6F332F74840F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9525A203-3D88-4679-82C1-6F332F74840F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9525A203-3D88-4679-82C1-6F332F74840F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{152BB9B3-89A3-4EDC-B9D1-17BF3A03CE8E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{152BB9B3-89A3-4EDC-B9D1-17BF3A03CE8E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{152BB9B3-89A3-4EDC-B9D1-17BF3A03CE8E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{152BB9B3-89A3-4EDC-B9D1-17BF3A03CE8E}.Release|Any CPU.Build.0 = Release|Any CPU
 		{E7226D5A-7306-41D2-8A30-435728FD604B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{E7226D5A-7306-41D2-8A30-435728FD604B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E7226D5A-7306-41D2-8A30-435728FD604B}.Release|Any CPU.ActiveCfg = Release|Any CPU

@@ -9,10 +9,9 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Persimmon.VisualStudio.TestRunner</RootNamespace>
     <AssemblyName>Persimmon.VisualStudio.TestRunner</AssemblyName>
-    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile>
-    </TargetFrameworkProfile>
+    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -38,13 +37,20 @@
     <AssemblyOriginatorKeyFile>..\Persimmon.VisualStudio.TestExplorer.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.CSharp" />
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="IExecutorSink.cs" />
-    <Compile Include="RemotableExecutor.cs" />
-    <Compile Include="Executor.cs" />
+    <Compile Include="..\CommonAssemblyInfo.cs">
+      <Link>Properties\CommonAssemblyInfo.cs</Link>
+    </Compile>
+    <Compile Include="ExecutionModes.cs" />
+    <Compile Include="Internals\SinkTrampoline.cs" />
+    <Compile Include="ITestExecutorSink.cs" />
+    <Compile Include="Internals\RemotableTestExecutor.cs" />
+    <Compile Include="TestExecutor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ExecutorTestCase.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Persimmon.VisualStudio.TestExplorer.snk">

@@ -7,7 +7,7 @@ using Persimmon.VisualStudio.TestRunner;
 
 namespace ConsoleApplication1
 {
-    public sealed class Sink : IExecutorSink
+    public sealed class Sink : ITestExecutorSink
     {
 
         public void Begin(string message)
@@ -19,6 +19,12 @@ namespace ConsoleApplication1
         {
             Console.WriteLine(message);
         }
+
+
+        public void Ident(ExecutorTestCase testCase)
+        {
+            Console.WriteLine(testCase);
+        }
     }
 
     class Program
@@ -27,8 +33,11 @@ namespace ConsoleApplication1
         {
             var sink = new Sink();
 
-            var executor = new Executor();
-            executor.Execute(@"D:\PROJECT\Persimmon.VisualStudio.TestExplorer.Prototype\Persimmon.Runner.Wrapper\bin\Debug\Persimmon.Runner.Wrapper.dll", sink);
+            var executor = new TestExecutor();
+            executor.Execute(
+                @"D:\PROJECT\Persimmon\examples\Persimmon.Sample\bin\Debug\Persimmon.Sample.dll",
+                sink,
+                ExecutionModes.Discover);
         }
     }
 }
