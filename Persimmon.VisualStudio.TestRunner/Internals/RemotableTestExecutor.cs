@@ -102,19 +102,20 @@ namespace Persimmon.VisualStudio.TestRunner.Internals
         /// </summary>
         /// <param name="action">Target delegate</param>
         /// <returns>Converted delegate</returns>
-        private static Action<dynamic> ToDynamicAction(
+        private static Action<object[]> ToRuntimeAction(
             Action<ExecutorTestCase> action)
         {
             Debug.Assert(action != null);
 
-            return new Action<dynamic>(testCase =>
+            return results =>
             {
+                Debug.Assert(results != null);
+
                 action(new ExecutorTestCase(
-                    testCase.FullyQualifiedName,
-                    testCase.ClassName,
-                    testCase.Source,
-                    testCase.DisplayName));
-            });
+                    (string)results[0],
+                    (string)results[1],
+                    (AssemblyName)results[2]));
+            };
         }
 
         /// <summary>
@@ -139,7 +140,7 @@ namespace Persimmon.VisualStudio.TestRunner.Internals
                 executorSink,
                 (testCollector, testAssembly) => testCollector.RunAndMarshal(
                     testAssembly,
-                    ToDynamicAction(executorSink.Ident)));
+                    ToRuntimeAction(executorSink.Ident)));
         }
 
         /// <summary>
@@ -164,7 +165,7 @@ namespace Persimmon.VisualStudio.TestRunner.Internals
                 executorSink,
                 (testCollector, testAssembly) => testCollector.RunAndMarshal(
                     testAssembly,
-                    ToDynamicAction(executorSink.Ident)));
+                    ToRuntimeAction(executorSink.Ident)));
         }
     }
 }

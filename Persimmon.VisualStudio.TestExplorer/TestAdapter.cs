@@ -1,13 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
-using System.Reflection;
+using System.Threading;
 
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Adapter;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging;
 
 using Persimmon.VisualStudio.TestRunner;
+using Persimmon.VisualStudio.TestExplorer.Sinks;
 
 namespace Persimmon.VisualStudio.TestExplorer
 {
@@ -16,7 +18,27 @@ namespace Persimmon.VisualStudio.TestExplorer
     [DefaultExecutorUri(Constant.ExtensionUriString)]
     public sealed class TestAdapter : ITestDiscoverer, ITestExecutor
     {
+        private static readonly object lock_ = new object();
+        private static bool ready_;
+
         private readonly Version version_ = typeof(TestAdapter).Assembly.GetName().Version;
+
+        [Conditional("DEBUG")]
+        private void WaitingForAttachDebugger()
+        {
+            lock (lock_)
+            {
+                if (ready_ == false)
+                {
+                    NativeMethods.MessageBox(
+                        IntPtr.Zero,
+                        string.Format("Waiting for DEBUG ({0}) ...", Process.GetCurrentProcess().Id),
+                        this.GetType().FullName,
+                        NativeMethods.MessageBoxOptions.IconWarning | NativeMethods.MessageBoxOptions.OkOnly);
+                    ready_ = true;
+                }
+            }
+        }
 
         public void DiscoverTests(
             IEnumerable<string> sources,
@@ -24,6 +46,8 @@ namespace Persimmon.VisualStudio.TestExplorer
             IMessageLogger logger,
             ITestCaseDiscoverySink discoverySink)
         {
+            this.WaitingForAttachDebugger();
+
             logger.SendMessage(
                 TestMessageLevel.Informational,
                 string.Format("Persimmon Test Explorer {0} discovering tests is started", version_));
@@ -55,6 +79,8 @@ namespace Persimmon.VisualStudio.TestExplorer
             IRunContext runContext,
             IFrameworkHandle frameworkHandle)
         {
+            this.WaitingForAttachDebugger();
+
             frameworkHandle.SendMessage(
                 TestMessageLevel.Informational,
                 string.Format("Persimmon Test Explorer {0} run tests is started", version_));

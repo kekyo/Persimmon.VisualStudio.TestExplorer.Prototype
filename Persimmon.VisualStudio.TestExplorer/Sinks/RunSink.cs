@@ -1,16 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Adapter;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging;
 
 using Persimmon.VisualStudio.TestRunner;
 
-namespace Persimmon.VisualStudio.TestExplorer
+namespace Persimmon.VisualStudio.TestExplorer.Sinks
 {
     internal sealed class RunSink : ITestExecutorSink
     {
@@ -27,7 +22,9 @@ namespace Persimmon.VisualStudio.TestExplorer
 
         public void Begin(string message)
         {
-            frameworkHandle_.SendMessage(TestMessageLevel.Informational, message);
+            frameworkHandle_.SendMessage(
+                TestMessageLevel.Informational,
+                string.Format("Begin tests: Path={0}", message));
         }
 
         public void Ident(ExecutorTestCase testCase)
@@ -35,14 +32,16 @@ namespace Persimmon.VisualStudio.TestExplorer
             // TODO: enable DiaSession
 
             frameworkHandle_.RecordResult(new TestResult(new TestCase(
-                testCase.FullyQualifiedName,
+                testCase.FullyQualifiedTestName,
                 Constant.ExtensionUri,
-                testCase.Source)));
+                new Uri(testCase.Source.CodeBase).LocalPath)));
         }
 
         public void Finished(string message)
         {
-            frameworkHandle_.SendMessage(TestMessageLevel.Informational, message);
+            frameworkHandle_.SendMessage(
+                TestMessageLevel.Informational,
+                string.Format("Finished tests: Path={0}", message));
         }
     }
 #if false

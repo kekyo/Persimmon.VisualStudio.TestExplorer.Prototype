@@ -8,25 +8,21 @@ namespace Persimmon.VisualStudio.TestRunner
     [Serializable]
     public sealed class ExecutorTestCase
     {
-        public readonly string FullyQualifiedName;
-        public readonly string ClassName;
-        public readonly string Source;
-        public readonly string DisplayName;
+        public readonly string FullyQualifiedTestName;
+        public readonly string TypeName;
+        public readonly AssemblyName Source;
 
         public ExecutorTestCase(
-            string fullyQualifiedName,
-            string className,
-            string source,
-            string displayName)
+            string fullyQualifiedTestName,
+            string typeName,
+            AssemblyName source)
         {
-            Debug.Assert(fullyQualifiedName != null);
+            Debug.Assert(fullyQualifiedTestName != null);
             Debug.Assert(source != null);
-            Debug.Assert(displayName != null);
 
-            FullyQualifiedName = fullyQualifiedName;
-            ClassName = className;
+            FullyQualifiedTestName = fullyQualifiedTestName;
+            TypeName = typeName;
             Source = source;
-            DisplayName = displayName;
         }
 
         public override string ToString()

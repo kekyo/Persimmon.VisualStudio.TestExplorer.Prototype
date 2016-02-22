@@ -1,16 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Adapter;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging;
 
 using Persimmon.VisualStudio.TestRunner;
 
-namespace Persimmon.VisualStudio.TestExplorer
+namespace Persimmon.VisualStudio.TestExplorer.Sinks
 {
     internal sealed class DiscoverySink : ITestExecutorSink
     {
@@ -30,20 +25,24 @@ namespace Persimmon.VisualStudio.TestExplorer
 
         public void Begin(string message)
         {
-            logger_.SendMessage(TestMessageLevel.Informational, message);
+            logger_.SendMessage(
+                TestMessageLevel.Informational,
+                string.Format("Begin discovery: Path={0}", message));
         }
 
         public void Ident(ExecutorTestCase testCase)
         {
             discoverySink_.SendTestCase(new TestCase(
-                testCase.FullyQualifiedName,
+                testCase.FullyQualifiedTestName,
                 Constant.ExtensionUri,
-                testCase.Source));
+                new Uri(testCase.Source.CodeBase).LocalPath));
         }
 
         public void Finished(string message)
         {
-            logger_.SendMessage(TestMessageLevel.Informational, message);
+            logger_.SendMessage(
+                TestMessageLevel.Informational,
+                string.Format("Finished discovery: Path={0}", message));
         }
     }
 }
