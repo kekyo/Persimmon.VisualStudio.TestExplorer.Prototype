@@ -35,7 +35,7 @@ namespace Persimmon.VisualStudio.TestExplorer.Sinks
             discoverySink_.SendTestCase(new TestCase(
                 testCase.FullyQualifiedTestName,
                 Constant.ExtensionUri,
-                new Uri(testCase.Source.CodeBase).LocalPath));
+                testCase.AssemblyPath));
         }
 
         public void Finished(string message)

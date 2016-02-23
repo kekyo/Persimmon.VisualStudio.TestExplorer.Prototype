@@ -10,19 +10,20 @@ namespace Persimmon.VisualStudio.TestRunner
     {
         public readonly string FullyQualifiedTestName;
         public readonly string TypeName;
-        public readonly AssemblyName Source;
+        public readonly string AssemblyPath;
 
         public ExecutorTestCase(
             string fullyQualifiedTestName,
             string typeName,
-            AssemblyName source)
+            string assemblyPath)
         {
-            Debug.Assert(fullyQualifiedTestName != null);
-            Debug.Assert(source != null);
+            Debug.Assert(!string.IsNullOrWhiteSpace(fullyQualifiedTestName));
+            Debug.Assert(!string.IsNullOrWhiteSpace(typeName));
+            Debug.Assert(!string.IsNullOrWhiteSpace(assemblyPath));
 
-            FullyQualifiedTestName = fullyQualifiedTestName;
-            TypeName = typeName;
-            Source = source;
+            this.FullyQualifiedTestName = fullyQualifiedTestName;
+            this.TypeName = typeName;
+            this.AssemblyPath = assemblyPath;
         }
 
         public override string ToString()

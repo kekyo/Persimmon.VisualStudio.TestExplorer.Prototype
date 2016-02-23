@@ -100,11 +100,14 @@ namespace Persimmon.VisualStudio.TestRunner.Internals
         /// <summary>
         /// Convert Action&lt;ExecutorTestCase&gt; to Action&lt;dynamic&gt;
         /// </summary>
+        /// <param name="targetAssemblyPath">Target assembly path</param>
         /// <param name="action">Target delegate</param>
         /// <returns>Converted delegate</returns>
         private static Action<object[]> ToRuntimeAction(
+            string targetAssemblyPath,
             Action<ExecutorTestCase> action)
         {
+            Debug.Assert(!string.IsNullOrWhiteSpace(targetAssemblyPath));
             Debug.Assert(action != null);
 
             return results =>
@@ -114,7 +117,7 @@ namespace Persimmon.VisualStudio.TestRunner.Internals
                 action(new ExecutorTestCase(
                     (string)results[0],
                     (string)results[1],
-                    (AssemblyName)results[2]));
+                    targetAssemblyPath));
             };
         }
 
@@ -140,7 +143,7 @@ namespace Persimmon.VisualStudio.TestRunner.Internals
                 executorSink,
                 (testCollector, testAssembly) => testCollector.RunAndMarshal(
                     testAssembly,
-                    ToRuntimeAction(executorSink.Ident)));
+                    ToRuntimeAction(targetAssemblyPath, executorSink.Ident)));
         }
 
         /// <summary>
@@ -165,7 +168,7 @@ namespace Persimmon.VisualStudio.TestRunner.Internals
                 executorSink,
                 (testCollector, testAssembly) => testCollector.RunAndMarshal(
                     testAssembly,
-                    ToRuntimeAction(executorSink.Ident)));
+                    ToRuntimeAction(targetAssemblyPath, executorSink.Ident)));
         }
     }
 }

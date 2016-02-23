@@ -34,7 +34,7 @@ namespace Persimmon.VisualStudio.TestExplorer.Sinks
             frameworkHandle_.RecordResult(new TestResult(new TestCase(
                 testCase.FullyQualifiedTestName,
                 Constant.ExtensionUri,
-                new Uri(testCase.Source.CodeBase).LocalPath)));
+                testCase.AssemblyPath)));
         }
 
         public void Finished(string message)
