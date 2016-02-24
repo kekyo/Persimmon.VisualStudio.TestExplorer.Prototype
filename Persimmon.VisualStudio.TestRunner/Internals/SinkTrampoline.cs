@@ -3,11 +3,11 @@ using System.Diagnostics;
 
 namespace Persimmon.VisualStudio.TestRunner.Internals
 {
-    internal sealed class SinkTrampoline : MarshalByRefObject, ITestExecutorSink
+    public sealed class SinkTrampoline : MarshalByRefObject
     {
         private readonly ITestExecutorSink parentSink_;
 
-        public SinkTrampoline(ITestExecutorSink parentSink)
+        internal SinkTrampoline(ITestExecutorSink parentSink)
         {
             Debug.Assert(parentSink != null);
             parentSink_ = parentSink;
@@ -18,9 +18,12 @@ namespace Persimmon.VisualStudio.TestRunner.Internals
             parentSink_.Begin(message);
         }
 
-        public void Ident(ExecutorTestCase testCase)
+        public void Ident(string targetAssemblyPath, object[] args)
         {
-            parentSink_.Ident(testCase);
+            parentSink_.Ident(new ExecutorTestCase(
+                args[0].ToString(),
+                args[1].ToString(),
+                targetAssemblyPath));
         }
 
         public void Finished(string message)

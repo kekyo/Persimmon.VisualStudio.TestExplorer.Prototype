@@ -28,15 +28,15 @@ namespace Persimmon.VisualStudio.TestRunner
         /// Test execute target assembly.
         /// </summary>
         /// <param name="targetAssemblyPath">Target assembly path</param>
-        /// <param name="sink">SinkTrampoline</param>
+        /// <param name="sinkTrampoline">SinkTrampoline</param>
         /// <param name="mode">Execution mode</param>
         private void InternalExecute(
             string targetAssemblyPath,
-            SinkTrampoline sink,
+            SinkTrampoline sinkTrampoline,
             ExecutionModes mode)
         {
             Debug.Assert(!string.IsNullOrWhiteSpace(targetAssemblyPath));
-            Debug.Assert(sink != null);
+            Debug.Assert(sinkTrampoline != null);
 
             // Strategy: Shadow copy information:
             //   https://msdn.microsoft.com/en-us/library/ms404279%28v=vs.110%29.aspx
@@ -102,8 +102,6 @@ namespace Persimmon.VisualStudio.TestRunner
                 
                 ///////////////////////////////////////////////////////////////////////////////////////////
                 // Execute via remote AppDomain
-                var sinkTrampoline = new SinkTrampoline(sink);
-
                 if (mode == ExecutionModes.Discover)
                 {
                     remoteExecutor.Discover(targetAssemblyPath, sinkTrampoline);

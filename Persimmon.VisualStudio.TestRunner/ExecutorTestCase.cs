@@ -5,7 +5,6 @@ using System.Reflection;
 
 namespace Persimmon.VisualStudio.TestRunner
 {
-    [Serializable]
     public sealed class ExecutorTestCase
     {
         public readonly string FullyQualifiedTestName;

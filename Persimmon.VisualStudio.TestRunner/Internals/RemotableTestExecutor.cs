@@ -50,15 +50,15 @@ namespace Persimmon.VisualStudio.TestRunner.Internals
         /// Load target assembly and do action.
         /// </summary>
         /// <param name="targetAssemblyPath">Target assembly path</param>
-        /// <param name="executorSink">Execution logger interface</param>
+        /// <param name="sinkTrampoline">Execution logger interface</param>
         /// <param name="rawAction">Action delegate(TestCollector, TestAssembly)</param>
         private void Execute(
             string targetAssemblyPath,
-            ITestExecutorSink executorSink,
+            SinkTrampoline sinkTrampoline,
             Action<dynamic, Assembly> rawAction)
         {
             Debug.Assert(!string.IsNullOrWhiteSpace(targetAssemblyPath));
-            Debug.Assert(executorSink != null);
+            Debug.Assert(sinkTrampoline != null);
             Debug.Assert(rawAction != null);
 
             Debug.Assert(
@@ -74,7 +74,7 @@ namespace Persimmon.VisualStudio.TestRunner.Internals
             //   --> Failed if current AppDomain.ApplicationBase folder is not target assembly path.
             var testAssembly = Assembly.Load(assemblyFullName);
 
-            executorSink.Begin(targetAssemblyPath);
+            sinkTrampoline.Begin(targetAssemblyPath);
 
             // 3. extract Persimmon assembly name via test assembly,
             var persimmonAssemblyName = testAssembly.GetReferencedAssemblies().
@@ -94,44 +94,27 @@ namespace Persimmon.VisualStudio.TestRunner.Internals
                 rawAction(testCollector, testAssembly);
             }
 
-            executorSink.Finished(targetAssemblyPath);
+            sinkTrampoline.Finished(targetAssemblyPath);
         }
 
-        /// <summary>
-        /// Convert Action&lt;ExecutorTestCase&gt; to Action&lt;dynamic&gt;
-        /// </summary>
-        /// <param name="targetAssemblyPath">Target assembly path</param>
-        /// <param name="action">Target delegate</param>
-        /// <returns>Converted delegate</returns>
-        private static Action<object[]> ToRuntimeAction(
+        private static Action<object[]> ToRawAction(
             string targetAssemblyPath,
-            Action<ExecutorTestCase> action)
+            Action<string, object[]> action)
         {
-            Debug.Assert(!string.IsNullOrWhiteSpace(targetAssemblyPath));
-            Debug.Assert(action != null);
-
-            return results =>
-            {
-                Debug.Assert(results != null);
-
-                action(new ExecutorTestCase(
-                    (string)results[0],
-                    (string)results[1],
-                    targetAssemblyPath));
-            };
+            return args => action(targetAssemblyPath, args);
         }
 
         /// <summary>
         /// Discover tests target assembly.
         /// </summary>
         /// <param name="targetAssemblyPath">Target assembly path</param>
-        /// <param name="executorSink">Execution logger interface</param>
+        /// <param name="sinkTrampoline">Execution logger interface</param>
         public void Discover(
             string targetAssemblyPath,
-            ITestExecutorSink executorSink)
+            SinkTrampoline sinkTrampoline)
         {
             Debug.Assert(!string.IsNullOrWhiteSpace(targetAssemblyPath));
-            Debug.Assert(executorSink is MarshalByRefObject);
+            Debug.Assert(sinkTrampoline != null);
 
             Debug.WriteLine(string.Format(
                 "{0}: Discover: TargetAssembly={1}",
@@ -140,23 +123,23 @@ namespace Persimmon.VisualStudio.TestRunner.Internals
 
             this.Execute(
                 targetAssemblyPath,
-                executorSink,
-                (testCollector, testAssembly) => testCollector.RunAndMarshal(
+                sinkTrampoline,
+                (testCollector, testAssembly) => testCollector.CollectAndMarshal(
                     testAssembly,
-                    ToRuntimeAction(targetAssemblyPath, executorSink.Ident)));
+                    ToRawAction(targetAssemblyPath, sinkTrampoline.Ident)));
         }
 
         /// <summary>
         /// Run tests target assembly.
         /// </summary>
         /// <param name="targetAssemblyPath">Target assembly path</param>
-        /// <param name="executorSink">Execution logger interface</param>
+        /// <param name="sinkTrampoline">Execution logger interface</param>
         public void Run(
             string targetAssemblyPath,
-            ITestExecutorSink executorSink)
+            SinkTrampoline sinkTrampoline)
         {
             Debug.Assert(!string.IsNullOrWhiteSpace(targetAssemblyPath));
-            Debug.Assert(executorSink is MarshalByRefObject);
+            Debug.Assert(sinkTrampoline != null);
 
             Debug.WriteLine(string.Format(
                 "{0}: Run: TargetAssembly={1}",
@@ -165,10 +148,10 @@ namespace Persimmon.VisualStudio.TestRunner.Internals
 
             this.Execute(
                 targetAssemblyPath,
-                executorSink,
-                (testCollector, testAssembly) => testCollector.RunAndMarshal(
+                sinkTrampoline,
+                (testCollector, testAssembly) => testCollector.CollectAndMarshal(
                     testAssembly,
-                    ToRuntimeAction(targetAssemblyPath, executorSink.Ident)));
+                    ToRawAction(targetAssemblyPath, sinkTrampoline.Ident)));
         }
     }
 }
