@@ -54,11 +54,12 @@ namespace Persimmon.VisualStudio.TestExplorer
             try
             {
                 var testExecutor = new TestExecutor();
+                var sink = new TestDiscoverySink(discoveryContext, logger, discoverySink);
 
-                testExecutor.Execute(
-                    sources,
-                    new DiscoverySink(discoveryContext, logger, discoverySink),
-                    ExecutionModes.Discover);
+                foreach (var targetAssemblyPath in sources)
+                {
+                    testExecutor.Discover(targetAssemblyPath, sink);
+                }
             }
             catch (Exception ex)
             {
@@ -87,11 +88,12 @@ namespace Persimmon.VisualStudio.TestExplorer
             try
             {
                 var testExecutor = new TestExecutor();
+                var sink = new TestRunSink(runContext, frameworkHandle);
 
-                testExecutor.Execute(
-                    sources,
-                    new RunSink(runContext, frameworkHandle),
-                    ExecutionModes.Run);
+                foreach (var targetAssemblyPath in sources)
+                {
+                    testExecutor.Run(targetAssemblyPath, Enumerable.Empty<string>(), sink);
+                }
             }
             catch (Exception ex)
             {
@@ -112,13 +114,38 @@ namespace Persimmon.VisualStudio.TestExplorer
             IRunContext runContext,
             IFrameworkHandle frameworkHandle)
         {
-            // TODO: enable per-testcase execution
-            this.RunTests(tests.Select(test => test.CodeFilePath), runContext, frameworkHandle);
+            this.WaitingForAttachDebugger();
+
+            frameworkHandle.SendMessage(
+                TestMessageLevel.Informational,
+                string.Format("Persimmon Test Explorer {0} run tests is started", version_));
+            try
+            {
+                var testExecutor = new TestExecutor();
+                var sink = new TestRunSink(runContext, frameworkHandle);
+
+                foreach (var g in tests.GroupBy(testCase => testCase.Source))
+                {
+                    testExecutor.Run(g.Key, g.Select(testCase => testCase.FullyQualifiedName), sink);
+                }
+            }
+            catch (Exception ex)
+            {
+                frameworkHandle.SendMessage(
+                    TestMessageLevel.Error,
+                    ex.ToString());
+            }
+            finally
+            {
+                frameworkHandle.SendMessage(
+                    TestMessageLevel.Informational,
+                    string.Format("Persimmon Test Explorer {0} run tests is finished", version_));
+            }
         }
 
         public void Cancel()
         {
-            // TODO: enable cancellation
+            // TODO: enable background execution and cancellation?
         }
 
 #if false

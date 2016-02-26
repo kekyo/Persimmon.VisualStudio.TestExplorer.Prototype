@@ -7,17 +7,22 @@ using Persimmon.VisualStudio.TestRunner;
 
 namespace Persimmon.VisualStudio.TestExplorer.Sinks
 {
-    internal sealed class RunSink : ITestExecutorSink
+    internal sealed class TestRunSink : ITestRunSink
     {
         private readonly IRunContext runContext_;
         private readonly IFrameworkHandle frameworkHandle_;
 
-        public RunSink(
+        public TestRunSink(
             IRunContext runContext,
             IFrameworkHandle frameworkHandle)
         {
             runContext_ = runContext;
             frameworkHandle_ = frameworkHandle;
+        }
+
+        public Uri ExtensionUri
+        {
+            get { return Constant.ExtensionUri; }
         }
 
         public void Begin(string message)
@@ -27,14 +32,9 @@ namespace Persimmon.VisualStudio.TestExplorer.Sinks
                 string.Format("Begin tests: Path={0}", message));
         }
 
-        public void Ident(ExecutorTestCase testCase)
+        public void Progress(TestResult testResult)
         {
-            // TODO: enable DiaSession
-
-            frameworkHandle_.RecordResult(new TestResult(new TestCase(
-                testCase.FullyQualifiedTestName,
-                Constant.ExtensionUri,
-                testCase.AssemblyPath)));
+            frameworkHandle_.RecordResult(testResult);
         }
 
         public void Finished(string message)

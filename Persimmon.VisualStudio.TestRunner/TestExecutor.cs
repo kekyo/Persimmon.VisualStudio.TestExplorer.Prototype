@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Security.Policy;
 
 using Persimmon.VisualStudio.TestRunner.Internals;
@@ -28,15 +29,13 @@ namespace Persimmon.VisualStudio.TestRunner
         /// Test execute target assembly.
         /// </summary>
         /// <param name="targetAssemblyPath">Target assembly path</param>
-        /// <param name="sinkTrampoline">SinkTrampoline</param>
-        /// <param name="mode">Execution mode</param>
-        private void InternalExecute(
+        /// <param name="action">Action</param>
+        private void Execute(
             string targetAssemblyPath,
-            SinkTrampoline sinkTrampoline,
-            ExecutionModes mode)
+            Action<RemotableTestExecutor> action)
         {
             Debug.Assert(!string.IsNullOrWhiteSpace(targetAssemblyPath));
-            Debug.Assert(sinkTrampoline != null);
+            Debug.Assert(action != null);
 
             // Strategy: Shadow copy information:
             //   https://msdn.microsoft.com/en-us/library/ms404279%28v=vs.110%29.aspx
@@ -77,7 +76,8 @@ namespace Persimmon.VisualStudio.TestRunner
             var configurationFilePath = targetAssemblyPath + ".config";
             if (File.Exists(configurationFilePath))
             {
-                Debug.WriteLine(string.Format("Persimmon test runner: Try to set configuration file: Path={0}", configurationFilePath));
+                Debug.WriteLine(string.Format(
+                    "Persimmon test runner: Try to set configuration file: Path={0}", configurationFilePath));
 
                 separatedAppDomainSetup.ConfigurationFile = configurationFilePath;
             }
@@ -102,14 +102,9 @@ namespace Persimmon.VisualStudio.TestRunner
                 
                 ///////////////////////////////////////////////////////////////////////////////////////////
                 // Execute via remote AppDomain
-                if (mode == ExecutionModes.Discover)
-                {
-                    remoteExecutor.Discover(targetAssemblyPath, sinkTrampoline);
-                }
-                else
-                {
-                    remoteExecutor.Run(targetAssemblyPath, sinkTrampoline);
-                }
+
+                action(remoteExecutor);
+
                 ///////////////////////////////////////////////////////////////////////////////////////////
             }
             finally
@@ -124,39 +119,41 @@ namespace Persimmon.VisualStudio.TestRunner
         /// </summary>
         /// <param name="targetAssemblyPath">Target assembly path</param>
         /// <param name="sink">Execution logger interface</param>
-        /// <param name="mode">Execution mode</param>
-        public void Execute(
+        public void Discover(
             string targetAssemblyPath,
-            ITestExecutorSink sink,
-            ExecutionModes mode)
+            ITestDiscoverSink sink)
         {
             Debug.Assert(!string.IsNullOrWhiteSpace(targetAssemblyPath));
             Debug.Assert(sink != null);
 
-            this.InternalExecute(targetAssemblyPath, new SinkTrampoline(sink), mode);
+            this.Execute(
+                targetAssemblyPath,
+                executor => executor.Discover(
+                    targetAssemblyPath,
+                    new DiscoverSinkTrampoline(targetAssemblyPath, sink)));
         }
 
         /// <summary>
-        /// Test execute target assemblies.
+        /// Test execute target assembly.
         /// </summary>
-        /// <param name="targetAssemblyPaths">Target assembly paths</param>
+        /// <param name="targetAssemblyPath">Target assembly path</param>
+        /// <param name="fullyQualifiedTestNames">Target test names. Run all tests if empty.</param>
         /// <param name="sink">Execution logger interface</param>
-        /// <param name="mode">Execution mode</param>
-        public void Execute(
-            IEnumerable<string> targetAssemblyPaths,
-            ITestExecutorSink sink,
-            ExecutionModes mode)
+        public void Run(
+            string targetAssemblyPath,
+            IEnumerable<string> fullyQualifiedTestNames,
+            ITestRunSink sink)
         {
-            Debug.Assert(targetAssemblyPaths != null);
+            Debug.Assert(!string.IsNullOrWhiteSpace(targetAssemblyPath));
+            Debug.Assert(fullyQualifiedTestNames != null);
             Debug.Assert(sink != null);
 
-            var sinkTrampoline = new SinkTrampoline(sink);
-            foreach (var path in targetAssemblyPaths)
-            {
-                Debug.Assert(!string.IsNullOrWhiteSpace(path));
-
-                this.InternalExecute(path, sinkTrampoline, mode);
-            }
+            this.Execute(
+                targetAssemblyPath,
+                executor => executor.Run(
+                    targetAssemblyPath,
+                    fullyQualifiedTestNames.ToArray(),
+                    new RunSinkTrampoline(targetAssemblyPath, sink)));
         }
     }
 }

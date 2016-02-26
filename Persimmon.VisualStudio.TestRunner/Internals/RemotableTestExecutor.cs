@@ -50,14 +50,20 @@ namespace Persimmon.VisualStudio.TestRunner.Internals
         /// Load target assembly and do action.
         /// </summary>
         /// <param name="targetAssemblyPath">Target assembly path</param>
+        /// <param name="persimmonPartialAssemblyName">Target type name</param>
+        /// <param name="persimmonTypeName">Target type name</param>
         /// <param name="sinkTrampoline">Execution logger interface</param>
         /// <param name="rawAction">Action delegate(TestCollector, TestAssembly)</param>
         private void Execute(
             string targetAssemblyPath,
-            SinkTrampoline sinkTrampoline,
+            string persimmonPartialAssemblyName,
+            string persimmonTypeName,
+            ISinkTrampoline sinkTrampoline,
             Action<dynamic, Assembly> rawAction)
         {
             Debug.Assert(!string.IsNullOrWhiteSpace(targetAssemblyPath));
+            Debug.Assert(!string.IsNullOrWhiteSpace(persimmonPartialAssemblyName));
+            Debug.Assert(!string.IsNullOrWhiteSpace(persimmonTypeName));
             Debug.Assert(sinkTrampoline != null);
             Debug.Assert(rawAction != null);
 
@@ -77,31 +83,23 @@ namespace Persimmon.VisualStudio.TestRunner.Internals
             sinkTrampoline.Begin(targetAssemblyPath);
 
             // 3. extract Persimmon assembly name via test assembly,
-            var persimmonAssemblyName = testAssembly.GetReferencedAssemblies().
-                FirstOrDefault(assembly => assembly.Name == "Persimmon");
-            if (persimmonAssemblyName != null)
+            var persimmonFullAssemblyName = testAssembly.GetReferencedAssemblies().
+                FirstOrDefault(assembly => assembly.Name == persimmonPartialAssemblyName);
+            if (persimmonFullAssemblyName != null)
             {
                 //   and load persimmon assembly.
-                var persimmonAssembly = Assembly.Load(persimmonAssemblyName);
+                var persimmonAssembly = Assembly.Load(persimmonFullAssemblyName);
 
-                // 4. Instantiate TestCollector (by dynamic), and do action.
-                //   --> Because TestCollector containing assembly version is unknown,
+                // 4. Instantiate TestCollector/TestRunner class (by dynamic), and do action.
+                //   --> Because TestCollector/TestRunner class containing assembly version is unknown,
                 //       so this TestRunner assembly can't statically refering The Persimmon assembly...
-                var testCollectorType = persimmonAssembly.GetType(
-                    "Persimmon.Internals.TestCollector");
-                dynamic testCollector = Activator.CreateInstance(testCollectorType);
+                var persimmonType = persimmonAssembly.GetType(persimmonTypeName);
+                dynamic persimmonInstance = Activator.CreateInstance(persimmonType);
 
-                rawAction(testCollector, testAssembly);
+                rawAction(persimmonInstance, testAssembly);
             }
 
             sinkTrampoline.Finished(targetAssemblyPath);
-        }
-
-        private static Action<object[]> ToRawAction(
-            string targetAssemblyPath,
-            Action<string, object[]> action)
-        {
-            return args => action(targetAssemblyPath, args);
         }
 
         /// <summary>
@@ -111,7 +109,7 @@ namespace Persimmon.VisualStudio.TestRunner.Internals
         /// <param name="sinkTrampoline">Execution logger interface</param>
         public void Discover(
             string targetAssemblyPath,
-            SinkTrampoline sinkTrampoline)
+            ISinkTrampoline sinkTrampoline)
         {
             Debug.Assert(!string.IsNullOrWhiteSpace(targetAssemblyPath));
             Debug.Assert(sinkTrampoline != null);
@@ -123,22 +121,27 @@ namespace Persimmon.VisualStudio.TestRunner.Internals
 
             this.Execute(
                 targetAssemblyPath,
+                "Persimmon",
+                "Persimmon.Internals.TestCollector",
                 sinkTrampoline,
-                (testCollector, testAssembly) => testCollector.CollectAndMarshal(
+                (testCollector, testAssembly) => testCollector.CollectAndCallback(
                     testAssembly,
-                    ToRawAction(targetAssemblyPath, sinkTrampoline.Ident)));
+                    new Action<object[]>(sinkTrampoline.Progress)));
         }
 
         /// <summary>
         /// Run tests target assembly.
         /// </summary>
         /// <param name="targetAssemblyPath">Target assembly path</param>
+        /// <param name="fullyQualifiedTestNames">Target test names. Run all tests if empty.</param>
         /// <param name="sinkTrampoline">Execution logger interface</param>
         public void Run(
             string targetAssemblyPath,
-            SinkTrampoline sinkTrampoline)
+            string[] fullyQualifiedTestNames,
+            ISinkTrampoline sinkTrampoline)
         {
             Debug.Assert(!string.IsNullOrWhiteSpace(targetAssemblyPath));
+            Debug.Assert(fullyQualifiedTestNames != null);
             Debug.Assert(sinkTrampoline != null);
 
             Debug.WriteLine(string.Format(
@@ -148,10 +151,13 @@ namespace Persimmon.VisualStudio.TestRunner.Internals
 
             this.Execute(
                 targetAssemblyPath,
+                "Persimmon",
+                "Persimmon.Internals.TestRunner",
                 sinkTrampoline,
-                (testCollector, testAssembly) => testCollector.CollectAndMarshal(
+                (TestRunner, testAssembly) => TestRunner.RunTestsAndCallback(
                     testAssembly,
-                    ToRawAction(targetAssemblyPath, sinkTrampoline.Ident)));
+                    fullyQualifiedTestNames,
+                    new Action<object[]>(sinkTrampoline.Progress)));
         }
     }
 }

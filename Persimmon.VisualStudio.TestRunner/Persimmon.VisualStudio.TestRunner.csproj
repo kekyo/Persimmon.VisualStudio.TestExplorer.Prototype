@@ -39,18 +39,25 @@
   <ItemGroup>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System" />
+    <Reference Include="Microsoft.VisualStudio.TestPlatform.ObjectModel">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(MSBuildProgramFiles32)\Microsoft Visual Studio $(VisualStudioVersion)\Common7\IDE\CommonExtensions\Microsoft\TestWindow\Microsoft.VisualStudio.TestPlatform.ObjectModel.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\CommonAssemblyInfo.cs">
       <Link>Properties\CommonAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="ExecutionModes.cs" />
-    <Compile Include="Internals\SinkTrampoline.cs" />
-    <Compile Include="ITestExecutorSink.cs" />
+    <Compile Include="Internals\ISinkTrampoline.cs" />
+    <Compile Include="Internals\DiscoverSinkTrampoline.cs" />
+    <Compile Include="Internals\RunSinkTrampoline.cs" />
+    <Compile Include="ITestDiscoverSink.cs" />
+    <Compile Include="ITestSink.cs" />
+    <Compile Include="ITestRunSink.cs" />
     <Compile Include="Internals\RemotableTestExecutor.cs" />
     <Compile Include="TestExecutor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ExecutorTestCase.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Persimmon.VisualStudio.TestExplorer.snk">

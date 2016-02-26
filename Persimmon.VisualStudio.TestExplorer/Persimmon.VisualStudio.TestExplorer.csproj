@@ -65,8 +65,8 @@
     </Compile>
     <Compile Include="Constant.cs" />
     <Compile Include="NativeMethods.cs" />
-    <Compile Include="Sinks\RunSink.cs" />
-    <Compile Include="Sinks\DiscoverySink.cs" />
+    <Compile Include="Sinks\TestRunSink.cs" />
+    <Compile Include="Sinks\TestDiscoverySink.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TestAdapter.cs" />
   </ItemGroup>
@@ -101,7 +101,7 @@
       <IncludeOutputGroupsInVSIX>BuiltProjectOutputGroup%3bBuiltProjectOutputGroupDependencies%3bGetCopyToOutputDirectoryItems%3bSatelliteDllsProjectOutputGroup%3b</IncludeOutputGroupsInVSIX>
       <IncludeOutputGroupsInVSIXLocalOnly>DebugSymbolsProjectOutputGroup%3b</IncludeOutputGroupsInVSIXLocalOnly>
     </ProjectReference>
-    <Reference Include="GACWrap, Version=1.0.0.0, Culture=neutral, PublicKeyToken=17092dcf29c36655, processorArchitecture=MSIL">
+    <Reference Include="GACWrap">
       <HintPath>..\packages\GACWrap.1.0.0\lib\net40-Client\GACWrap.dll</HintPath>
       <Private>True</Private>
     </Reference>
