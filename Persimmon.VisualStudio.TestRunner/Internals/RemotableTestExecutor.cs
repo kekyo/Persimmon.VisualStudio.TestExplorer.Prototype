@@ -119,6 +119,21 @@ namespace Persimmon.VisualStudio.TestRunner.Internals
                 this.GetType().FullName,
                 targetAssemblyPath));
 
+            // Callback delegate: testCase is ITestCase.
+            var callback = new Action<dynamic>(testCase =>
+            {
+                Debug.Assert(!string.IsNullOrWhiteSpace(testCase.FullName));
+                Debug.Assert(testCase.DeclaredType != null);
+                Debug.Assert(testCase.DeclaredType.Value != null);
+
+                // Re-construct results by safe serializable type. (object array)
+                sinkTrampoline.Progress(new object[]
+                {
+                    testCase.FullName,
+                    testCase.DeclaredType.Value.FullName
+                });
+            });
+
             this.Execute(
                 targetAssemblyPath,
                 "Persimmon",
@@ -126,7 +141,7 @@ namespace Persimmon.VisualStudio.TestRunner.Internals
                 sinkTrampoline,
                 (testCollector, testAssembly) => testCollector.CollectAndCallback(
                     testAssembly,
-                    new Action<object[]>(sinkTrampoline.Progress)));
+                    callback));
         }
 
         /// <summary>
@@ -149,6 +164,22 @@ namespace Persimmon.VisualStudio.TestRunner.Internals
                 this.GetType().FullName,
                 targetAssemblyPath));
 
+            // Callback delegate: testResult is ITestResult.
+            var callback = new Action<dynamic>(testResult =>
+            {
+                Debug.Assert(!string.IsNullOrWhiteSpace(testResult.FullName));
+                Debug.Assert(testResult.DeclaredType != null);
+                Debug.Assert(!string.IsNullOrWhiteSpace(testResult.Outcome != null));
+
+                // Re-construct results by safe serializable type. (object array)
+                sinkTrampoline.Progress(new object[]
+                {
+                    testResult.FullName,
+                    testResult.DeclaredType.FullName,
+                    testResult.Outcome
+                });
+            });
+
             this.Execute(
                 targetAssemblyPath,
                 "Persimmon",
@@ -157,7 +188,7 @@ namespace Persimmon.VisualStudio.TestRunner.Internals
                 (TestRunner, testAssembly) => TestRunner.RunTestsAndCallback(
                     testAssembly,
                     fullyQualifiedTestNames,
-                    new Action<object[]>(sinkTrampoline.Progress)));
+                    callback));
         }
     }
 }
