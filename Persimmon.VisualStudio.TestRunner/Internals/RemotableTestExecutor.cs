@@ -122,10 +122,6 @@ namespace Persimmon.VisualStudio.TestRunner.Internals
             // Callback delegate: testCase is ITestCase.
             var callback = new Action<dynamic>(testCase =>
             {
-                Debug.Assert(!string.IsNullOrWhiteSpace(testCase.FullName));
-                Debug.Assert(testCase.DeclaredType != null);
-                Debug.Assert(testCase.DeclaredType.Value != null);
-
                 // Re-construct results by safe serializable type. (object array)
                 sinkTrampoline.Progress(new object[]
                 {
@@ -167,10 +163,6 @@ namespace Persimmon.VisualStudio.TestRunner.Internals
             // Callback delegate: testResult is ITestResult.
             var callback = new Action<dynamic>(testResult =>
             {
-                Debug.Assert(!string.IsNullOrWhiteSpace(testResult.FullName));
-                Debug.Assert(testResult.DeclaredType != null);
-                Debug.Assert(!string.IsNullOrWhiteSpace(testResult.Outcome != null));
-
                 // Re-construct results by safe serializable type. (object array)
                 sinkTrampoline.Progress(new object[]
                 {
