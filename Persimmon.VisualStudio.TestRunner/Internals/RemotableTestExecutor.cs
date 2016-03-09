@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
+using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 
 namespace Persimmon.VisualStudio.TestRunner.Internals
 {
@@ -12,22 +13,6 @@ namespace Persimmon.VisualStudio.TestRunner.Internals
     /// </summary>
     public sealed class RemotableTestExecutor : MarshalByRefObject
     {
-        static RemotableTestExecutor()
-        {
-            AppDomain.CurrentDomain.AssemblyResolve += AssemblyResolve;
-        }
-
-        private static Assembly AssemblyResolve(object sender, ResolveEventArgs e)
-        {
-            Debug.WriteLine(string.Format(
-                "AssemblyResolve: Name={0}, Requesting={1}, Current={2}",
-                e.Name,
-                e.RequestingAssembly,
-                AppDomain.CurrentDomain));
-
-            return null;
-        }
-
         /// <summary>
         /// Constructor.
         /// </summary>
@@ -119,25 +104,63 @@ namespace Persimmon.VisualStudio.TestRunner.Internals
                 this.GetType().FullName,
                 targetAssemblyPath));
 
-            // Callback delegate: testCase is ITestCase.
-            var callback = new Action<dynamic>(testCase =>
+            DiaSession diaSession = null;
+            try
             {
-                // Re-construct results by safe serializable type. (object array)
-                sinkTrampoline.Progress(new object[]
-                {
-                    testCase.FullName,
-                    testCase.DeclaredType.Value.FullName
-                });
-            });
+                diaSession = new DiaSession(targetAssemblyPath);
+            }
+            catch (Exception ex)
+            {
+                // Ignore cannot load.
+                Debug.WriteLine(ex.ToString());
+            }
 
-            this.Execute(
-                targetAssemblyPath,
-                "Persimmon",
-                "Persimmon.Internals.TestCollector",
-                sinkTrampoline,
-                (testCollector, testAssembly) => testCollector.CollectAndCallback(
-                    testAssembly,
-                    callback));
+            try
+            {
+                // Callback delegate: testCase is ITestCase.
+                var callback = new Action<dynamic>(testCase =>
+                {
+                    MemberInfo member = testCase.DeclaredMember.Value;
+                    var method = member as MethodInfo;
+                    var type = (method != null) ? method.DeclaringType : null;
+
+                    // If enable DiaSession, lookup debug information.
+                    DiaNavigationData navigationData = null;
+                    if (diaSession != null)
+                    {
+                        if ((method != null) && (type != null))
+                        {
+                            navigationData = diaSession.GetNavigationData(
+                                type.FullName,
+                                method.Name);
+                        }
+                    }
+
+                    // Re-construct results by safe serializable type. (object array)
+                    sinkTrampoline.Progress(new[]
+                    {
+                        testCase.FullName,
+                        testCase.FullName,  // TODO: Context-structual path
+                        (type != null) ? type.FullName : member.Name,
+                        (method != null) ? method.Name : member.Name,
+                        (navigationData != null) ? navigationData.FileName : null,
+                        (navigationData != null) ? navigationData.MinLineNumber : -1
+                    });
+                });
+
+                this.Execute(
+                    targetAssemblyPath,
+                    "Persimmon",
+                    "Persimmon.Internals.TestCollector",
+                    sinkTrampoline,
+                    (testCollector, testAssembly) => testCollector.CollectAndCallback(
+                        testAssembly,
+                        callback));
+            }
+            finally
+            {
+                if (diaSession != null) diaSession.Dispose();
+            }
         }
 
         /// <summary>
@@ -164,7 +187,7 @@ namespace Persimmon.VisualStudio.TestRunner.Internals
             var callback = new Action<dynamic>(testResult =>
             {
                 // Re-construct results by safe serializable type. (object array)
-                sinkTrampoline.Progress(new object[]
+                sinkTrampoline.Progress(new[]
                 {
                     testResult.FullName,
                     testResult.DeclaredType.FullName,

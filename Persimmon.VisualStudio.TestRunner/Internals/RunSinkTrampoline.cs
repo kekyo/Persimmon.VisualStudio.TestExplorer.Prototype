@@ -24,17 +24,16 @@ namespace Persimmon.VisualStudio.TestRunner.Internals
             parentSink_.Begin(message);
         }
 
-        public void Progress(object[] args)
+        public void Progress(dynamic[] args)
         {
-            // TODO: enable Dia session here?
-
+            // TODO: Require matching original TestCase instance.
             var testCase = new TestCase(
-                args[0].ToString(),
+                args[0],
                 parentSink_.ExtensionUri,
                 targetAssemblyPath_);
 
             var testResult = new TestResult(testCase);
-            testResult.Outcome = (TestOutcome) Enum.Parse(typeof (TestOutcome), args[2].ToString());
+            testResult.Outcome = (TestOutcome) Enum.Parse(typeof (TestOutcome), args[2]);
 
             parentSink_.Progress(testResult);
         }

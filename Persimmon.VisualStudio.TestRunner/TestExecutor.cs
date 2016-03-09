@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Security.Policy;
 
 using Persimmon.VisualStudio.TestRunner.Internals;
@@ -14,6 +15,7 @@ namespace Persimmon.VisualStudio.TestRunner
     /// </summary>
     public sealed class TestExecutor
     {
+        private static readonly Type assemblyInjectorType_ = typeof(AssemblyInjector);
         private static readonly Type remotableExecutorType_ = typeof(RemotableTestExecutor);
         private static readonly string testRunnerAssemblyPath_ = remotableExecutorType_.Assembly.Location;
 
@@ -94,6 +96,20 @@ namespace Persimmon.VisualStudio.TestRunner
 
             try
             {
+                // Create AssemblyInjector instance into new AppDomain.
+                var assemblyInjector = (AssemblyInjector) separatedAppDomain.CreateInstanceFromAndUnwrap(
+                    testRunnerAssemblyPath_,
+                    assemblyInjectorType_.FullName,
+                    false,
+                    BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly,
+                    null,
+                    new object[]
+                    {
+                        AppDomain.CurrentDomain.GetAssemblies().Select(assembly => assembly.GetName()).ToArray()
+                    },
+                    null,
+                    null);
+
                 // Create RemotableTestExecutor instance into new AppDomain,
                 //   and get remote reference.
                 var remoteExecutor = (RemotableTestExecutor)separatedAppDomain.CreateInstanceFromAndUnwrap(

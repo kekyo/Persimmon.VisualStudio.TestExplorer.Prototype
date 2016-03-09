@@ -50,7 +50,7 @@ namespace Persimmon.VisualStudio.TestExplorer
 
             logger.SendMessage(
                 TestMessageLevel.Informational,
-                string.Format("Persimmon Test Explorer {0} discovering tests is started", version_));
+                string.Format("Persimmon Test Explorer {0} discovering tests started", version_));
             try
             {
                 var testExecutor = new TestExecutor();
@@ -71,7 +71,7 @@ namespace Persimmon.VisualStudio.TestExplorer
             {
                 logger.SendMessage(
                     TestMessageLevel.Informational,
-                    string.Format("Persimmon Test Explorer {0} discovering tests is finished", version_));
+                    string.Format("Persimmon Test Explorer {0} discovering tests finished", version_));
             }
         }
 
@@ -84,7 +84,7 @@ namespace Persimmon.VisualStudio.TestExplorer
 
             frameworkHandle.SendMessage(
                 TestMessageLevel.Informational,
-                string.Format("Persimmon Test Explorer {0} run tests is started", version_));
+                string.Format("Persimmon Test Explorer {0} run tests started", version_));
             try
             {
                 var testExecutor = new TestExecutor();
@@ -105,7 +105,7 @@ namespace Persimmon.VisualStudio.TestExplorer
             {
                 frameworkHandle.SendMessage(
                     TestMessageLevel.Informational,
-                    string.Format("Persimmon Test Explorer {0} run tests is finished", version_));
+                    string.Format("Persimmon Test Explorer {0} run tests finished", version_));
             }
         }
 
@@ -118,7 +118,7 @@ namespace Persimmon.VisualStudio.TestExplorer
 
             frameworkHandle.SendMessage(
                 TestMessageLevel.Informational,
-                string.Format("Persimmon Test Explorer {0} run tests is started", version_));
+                string.Format("Persimmon Test Explorer {0} run tests started", version_));
             try
             {
                 var testExecutor = new TestExecutor();
@@ -139,7 +139,7 @@ namespace Persimmon.VisualStudio.TestExplorer
             {
                 frameworkHandle.SendMessage(
                     TestMessageLevel.Informational,
-                    string.Format("Persimmon Test Explorer {0} run tests is finished", version_));
+                    string.Format("Persimmon Test Explorer {0} run tests finished", version_));
             }
         }
 

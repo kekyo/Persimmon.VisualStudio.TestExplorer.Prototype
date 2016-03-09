@@ -24,12 +24,16 @@ namespace Persimmon.VisualStudio.TestRunner.Internals
             parentSink_.Begin(message);
         }
 
-        public void Progress(object[] args)
+        public void Progress(dynamic[] args)
         {
             var testCase = new TestCase(
-                args[0].ToString(),
+                args[0],
                 parentSink_.ExtensionUri,
                 targetAssemblyPath_);
+
+            testCase.DisplayName = args[1];
+            testCase.CodeFilePath = args[4];
+            testCase.LineNumber = args[5];
 
             parentSink_.Progress(testCase);
         }
