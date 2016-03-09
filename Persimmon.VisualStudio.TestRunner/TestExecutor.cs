@@ -164,12 +164,14 @@ namespace Persimmon.VisualStudio.TestRunner
             Debug.Assert(fullyQualifiedTestNames != null);
             Debug.Assert(sink != null);
 
+            // TODO: where testCases? from TestAdapter's TestCase types...
+
             this.Execute(
                 targetAssemblyPath,
                 executor => executor.Run(
                     targetAssemblyPath,
                     fullyQualifiedTestNames.ToArray(),
-                    new RunSinkTrampoline(targetAssemblyPath, sink)));
+                    new RunSinkTrampoline(targetAssemblyPath, sink, testCases)));
         }
     }
 }

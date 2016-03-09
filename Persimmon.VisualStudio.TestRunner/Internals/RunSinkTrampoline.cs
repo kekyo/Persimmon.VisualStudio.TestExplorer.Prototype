@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
@@ -9,14 +10,20 @@ namespace Persimmon.VisualStudio.TestRunner.Internals
     {
         private readonly string targetAssemblyPath_;
         private readonly ITestRunSink parentSink_;
+        private readonly Dictionary<string, TestCase> testCases_;
 
-        internal RunSinkTrampoline(string targetAssemblyPath, ITestRunSink parentSink)
+        internal RunSinkTrampoline(
+            string targetAssemblyPath,
+            ITestRunSink parentSink,
+            Dictionary<string, TestCase> testCases)
         {
             Debug.Assert(!string.IsNullOrWhiteSpace(targetAssemblyPath));
             Debug.Assert(parentSink != null);
+            Debug.Assert(testCases != null);
 
             targetAssemblyPath_ = targetAssemblyPath;
             parentSink_ = parentSink;
+            testCases_ = testCases;
         }
 
         public void Begin(string message)
@@ -26,14 +33,23 @@ namespace Persimmon.VisualStudio.TestRunner.Internals
 
         public void Progress(dynamic[] args)
         {
-            // TODO: Require matching original TestCase instance.
-            var testCase = new TestCase(
-                args[0],
-                parentSink_.ExtensionUri,
-                targetAssemblyPath_);
+            TestCase testCase;
+            if (testCases_.TryGetValue(args[0], out testCase) == false)
+            {
+                testCase = new TestCase(
+                    args[0],
+                    parentSink_.ExtensionUri,
+                    targetAssemblyPath_);
+            }
 
             var testResult = new TestResult(testCase);
-            testResult.Outcome = (TestOutcome) Enum.Parse(typeof (TestOutcome), args[2]);
+            var exceptions = args[2] as Exception[];
+
+            // TODO: Other outcome require handled.
+            //   Strategy: testCases_ included target test cases,
+            //     so match and filter into Finished(), filtered test cases marking TestOutcome.Notfound.
+            testResult.Outcome = (exceptions.Length >= 1) ? TestOutcome.Failed : TestOutcome.Passed;
+            testResult.Duration = args[3];
 
             parentSink_.Progress(testResult);
         }

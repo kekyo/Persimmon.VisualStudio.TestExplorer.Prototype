@@ -186,12 +186,18 @@ namespace Persimmon.VisualStudio.TestRunner.Internals
             // Callback delegate: testResult is ITestResult.
             var callback = new Action<dynamic>(testResult =>
             {
+                MemberInfo member = testResult.DeclaredMember.Value;
+                var method = member as MethodInfo;
+                var type = (method != null) ? method.DeclaringType : null;
+
                 // Re-construct results by safe serializable type. (object array)
                 sinkTrampoline.Progress(new[]
                 {
                     testResult.FullName,
-                    testResult.DeclaredType.FullName,
-                    testResult.Outcome
+                    (type != null) ? type.FullName : member.Name,
+                    (method != null) ? method.Name : member.Name,
+                    testResult.Exceptions,  // TODO: exn may failed serialize. try convert safe types...
+                    testResult.Duration
                 });
             });
 
