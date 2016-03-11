@@ -80,7 +80,7 @@ namespace Persimmon.VisualStudio.TestRunner.Internals
                 //   --> Because TestCollector/TestRunner class containing assembly version is unknown,
                 //       so this TestRunner assembly can't statically refering The Persimmon assembly...
                 var persimmonType = persimmonAssembly.GetType(persimmonTypeName);
-                dynamic persimmonInstance = await Task.Run(() => Activator.CreateInstance(persimmonType));
+                dynamic persimmonInstance = Activator.CreateInstance(persimmonType);
 
                 rawAction(persimmonInstance, testAssembly);
             }
@@ -170,7 +170,7 @@ namespace Persimmon.VisualStudio.TestRunner.Internals
         /// <param name="fullyQualifiedTestNames">Target test names. Run all tests if empty.</param>
         /// <param name="sinkTrampoline">Execution logger interface</param>
         /// <param name="token">CancellationToken</param>
-        private async Task InternalRunAsync(
+        private Task InternalRunAsync(
             string targetAssemblyPath,
             string[] fullyQualifiedTestNames,
             ISinkTrampoline sinkTrampoline,
@@ -184,7 +184,7 @@ namespace Persimmon.VisualStudio.TestRunner.Internals
             // Callback delegate: testResult is ITestResult.
             var callback = new Action<dynamic>(testResult =>
             {
-                MemberInfo member = testResult.DeclaredMember.Value;
+                MemberInfo member = testResult.DeclaredMember;
                 var method = member as MethodInfo;
                 var type = (method != null) ? method.DeclaringType : null;
 
@@ -199,12 +199,14 @@ namespace Persimmon.VisualStudio.TestRunner.Internals
                 });
             });
 
-            await this.ExecuteAsync(
+            // TODO: Support abort by CancellationToken
+
+            return this.ExecuteAsync(
                 targetAssemblyPath,
                 "Persimmon",
                 "Persimmon.Internals.TestRunner",
                 sinkTrampoline,
-                (TestRunner, testAssembly) => TestRunner.RunTestsAndCallback(
+                (testRunner, testAssembly) => testRunner.RunTestsAndCallback(
                     testAssembly,
                     fullyQualifiedTestNames,
                     callback));
@@ -221,7 +223,7 @@ namespace Persimmon.VisualStudio.TestRunner.Internals
             string targetAssemblyPath,
             string[] fullyQualifiedTestNames,
             ISinkTrampoline sinkTrampoline,
-            CancellationToken token)
+            RemoteCancellationToken token)
         {
             Debug.Assert(!string.IsNullOrWhiteSpace(targetAssemblyPath));
             Debug.Assert(fullyQualifiedTestNames != null);

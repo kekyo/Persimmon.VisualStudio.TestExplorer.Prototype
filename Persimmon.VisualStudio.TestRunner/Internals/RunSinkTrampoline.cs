@@ -46,13 +46,13 @@ namespace Persimmon.VisualStudio.TestRunner.Internals
             }
 
             var testResult = new TestResult(testCase);
-            var exceptions = (Exception[])args[2];
+            var exceptions = (Exception[])args[3];
 
             // TODO: Other outcome require handled.
             //   Strategy: testCases_ included target test cases,
             //     so match and filter into Finished(), filtered test cases marking TestOutcome.Notfound.
             testResult.Outcome = (exceptions.Length >= 1) ? TestOutcome.Failed : TestOutcome.Passed;
-            testResult.Duration = args[3];
+            testResult.Duration = args[4];
 
             parentSink_.Progress(testResult);
         }

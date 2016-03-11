@@ -61,8 +61,10 @@ namespace Persimmon.VisualStudio.TestExplorer
                 var sink = new TestDiscoverySink(discoveryContext, logger, discoverySink);
 
                 // Discover must synch execute.
-                Task.WaitAll(sources.Select(
-                    targetAssemblyPath => testExecutor.DiscoverAsync(targetAssemblyPath, sink)).ToArray());
+                var task = Task.WhenAll(sources.Select(
+                    targetAssemblyPath => testExecutor.DiscoverAsync(targetAssemblyPath, sink)));
+
+                task.Wait();
             }
             catch (Exception ex)
             {
@@ -99,10 +101,10 @@ namespace Persimmon.VisualStudio.TestExplorer
 
                 // Start tests.
                 // TODO: Generate TestCase here...
-                foreach (var task in sources.Select(targetAssemblyPath =>
-                    testExecutor.RunAsync(targetAssemblyPath, new TestCase[0], sink, cts.Token)))
-                {
-                }
+                var task = Task.WhenAll(sources.Select(targetAssemblyPath =>
+                    testExecutor.RunAsync(targetAssemblyPath, new TestCase[0], sink, cts.Token)));
+
+                task.Wait();
             }
             catch (Exception ex)
             {
@@ -138,10 +140,10 @@ namespace Persimmon.VisualStudio.TestExplorer
                 cancellationTokens_.Enqueue(cts);
 
                 // Start tests.
-                foreach (var task in tests.GroupBy(testCase => testCase.Source).
-                    Select(g => testExecutor.RunAsync(g.Key, g.ToArray(), sink, cts.Token)))
-                {
-                }
+                var task = Task.WhenAll(tests.GroupBy(testCase => testCase.Source).
+                    Select(g => testExecutor.RunAsync(g.Key, g.ToArray(), sink, cts.Token)));
+
+                task.Wait();
             }
             catch (Exception ex)
             {

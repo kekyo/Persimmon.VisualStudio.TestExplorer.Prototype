@@ -122,9 +122,20 @@ namespace Persimmon.VisualStudio.TestRunner
                 ///////////////////////////////////////////////////////////////////////////////////////////
                 // Execute via remote AppDomain
 
-                await action(remoteExecutor);
+                await action(remoteExecutor);   // - (2)
 
                 ///////////////////////////////////////////////////////////////////////////////////////////
+
+                // TODO: DIRTY HACK:
+                //   If not insert Task.Delay...
+                //     1. RemoteTask is held callback method.
+                //     2. RemotableTestExecutor try to call callback. Implicitly suspend remote AppDomain's Thread - (a).
+                //     3. Execute callback by origin AppDomain thread, callback kick TaskCompletionSource<T>.SetResult/SetException/SetCancel method.
+                //     4. Continue last continuation (2) and execute AppDomain.Unload.
+                //     5. Remote thread (1) raise ThreadAbortException...
+                //   Insert Task.Delay...
+                //     6. Remote thread (1) finished normally earlier than Unload.
+                await Task.Delay(100);
             }
             finally
             {

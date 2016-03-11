@@ -7,7 +7,7 @@ namespace Persimmon.VisualStudio.TestRunner.Internals
     {
         private readonly Task<T> task_;
 
-        internal RemoteTask(Task<T> task)
+        private RemoteTask(Task<T> task)
         {
             task_ = task;
         }
@@ -18,7 +18,7 @@ namespace Persimmon.VisualStudio.TestRunner.Internals
             {
                 if (task_.IsFaulted) sink.SetException(task_.Exception);
                 else if (task_.IsCanceled) sink.SetCanceled();
-                else if (task_.IsCompleted) sink.SetCompleted(task_.Result);
+                else if (task_.IsCompleted) sink.SetResult(task_.Result);
             });
         }
 
@@ -47,12 +47,12 @@ namespace Persimmon.VisualStudio.TestRunner.Internals
             {
             }
 
-            public Task<T> Task
+            internal Task<T> Task
             {
                 get { return tcs_.Task; }
             }
 
-            public void SetCompleted(T value)
+            public void SetResult(T value)
             {
                 tcs_.SetResult(value);
             }
@@ -73,7 +73,7 @@ namespace Persimmon.VisualStudio.TestRunner.Internals
     {
         private readonly Task task_;
 
-        internal RemoteTask(Task task)
+        private RemoteTask(Task task)
         {
             task_ = task;
         }
@@ -113,7 +113,7 @@ namespace Persimmon.VisualStudio.TestRunner.Internals
             {
             }
 
-            public Task Task
+            internal Task Task
             {
                 get { return tcs_.Task; }
             }
