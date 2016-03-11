@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Adapter;
@@ -22,6 +24,8 @@ namespace Persimmon.VisualStudio.TestExplorer
         private static bool ready_;
 
         private readonly Version version_ = typeof(TestAdapter).Assembly.GetName().Version;
+        private readonly ConcurrentQueue<CancellationTokenSource> cancellationTokens_ =
+            new ConcurrentQueue<CancellationTokenSource>();
 
         [Conditional("DEBUG")]
         private void WaitingForAttachDebugger()
@@ -56,10 +60,9 @@ namespace Persimmon.VisualStudio.TestExplorer
                 var testExecutor = new TestExecutor();
                 var sink = new TestDiscoverySink(discoveryContext, logger, discoverySink);
 
-                foreach (var targetAssemblyPath in sources)
-                {
-                    testExecutor.Discover(targetAssemblyPath, sink);
-                }
+                // Discover must synch execute.
+                Task.WaitAll(sources.Select(
+                    targetAssemblyPath => testExecutor.DiscoverAsync(targetAssemblyPath, sink)).ToArray());
             }
             catch (Exception ex)
             {
@@ -90,9 +93,15 @@ namespace Persimmon.VisualStudio.TestExplorer
                 var testExecutor = new TestExecutor();
                 var sink = new TestRunSink(runContext, frameworkHandle);
 
-                foreach (var targetAssemblyPath in sources)
+                // Register cancellation token.
+                var cts = new CancellationTokenSource();
+                cancellationTokens_.Enqueue(cts);
+
+                // Start tests.
+                // TODO: Generate TestCase here...
+                foreach (var task in sources.Select(targetAssemblyPath =>
+                    testExecutor.RunAsync(targetAssemblyPath, new TestCase[0], sink, cts.Token)))
                 {
-                    testExecutor.Run(targetAssemblyPath, Enumerable.Empty<string>(), sink);
                 }
             }
             catch (Exception ex)
@@ -124,9 +133,14 @@ namespace Persimmon.VisualStudio.TestExplorer
                 var testExecutor = new TestExecutor();
                 var sink = new TestRunSink(runContext, frameworkHandle);
 
-                foreach (var g in tests.GroupBy(testCase => testCase.Source))
+                // Register cancellation token.
+                var cts = new CancellationTokenSource();
+                cancellationTokens_.Enqueue(cts);
+
+                // Start tests.
+                foreach (var task in tests.GroupBy(testCase => testCase.Source).
+                    Select(g => testExecutor.RunAsync(g.Key, g.ToArray(), sink, cts.Token)))
                 {
-                    testExecutor.Run(g.Key, g.Select(testCase => testCase.FullyQualifiedName), sink);
                 }
             }
             catch (Exception ex)
@@ -145,7 +159,11 @@ namespace Persimmon.VisualStudio.TestExplorer
 
         public void Cancel()
         {
-            // TODO: enable background execution and cancellation?
+            // Cancel all tasks.
+            foreach (var cts in cancellationTokens_)
+            {
+                cts.Cancel();
+            }
         }
 
 #if false

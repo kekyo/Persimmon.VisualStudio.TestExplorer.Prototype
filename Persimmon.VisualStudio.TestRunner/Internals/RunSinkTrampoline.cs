@@ -33,17 +33,20 @@ namespace Persimmon.VisualStudio.TestRunner.Internals
 
         public void Progress(dynamic[] args)
         {
+            string fqtn = args[0];
             TestCase testCase;
-            if (testCases_.TryGetValue(args[0], out testCase) == false)
+            if (testCases_.TryGetValue(fqtn, out testCase) == false)
             {
+                // Invalid fqtn, try create only basic informational TestCase...
+                Debug.Fail("Not valid fqtn: " + fqtn);
                 testCase = new TestCase(
-                    args[0],
+                    fqtn,
                     parentSink_.ExtensionUri,
                     targetAssemblyPath_);
             }
 
             var testResult = new TestResult(testCase);
-            var exceptions = args[2] as Exception[];
+            var exceptions = (Exception[])args[2];
 
             // TODO: Other outcome require handled.
             //   Strategy: testCases_ included target test cases,

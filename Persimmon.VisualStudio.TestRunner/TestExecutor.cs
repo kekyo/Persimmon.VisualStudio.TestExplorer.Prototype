@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Security.Policy;
-
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Persimmon.VisualStudio.TestRunner.Internals;
 
 namespace Persimmon.VisualStudio.TestRunner
@@ -32,9 +35,9 @@ namespace Persimmon.VisualStudio.TestRunner
         /// </summary>
         /// <param name="targetAssemblyPath">Target assembly path</param>
         /// <param name="action">Action</param>
-        private void Execute(
+        private async Task ExecuteAsync(
             string targetAssemblyPath,
-            Action<RemotableTestExecutor> action)
+            Func<RemotableTestExecutor, Task> action)
         {
             Debug.Assert(!string.IsNullOrWhiteSpace(targetAssemblyPath));
             Debug.Assert(action != null);
@@ -119,7 +122,7 @@ namespace Persimmon.VisualStudio.TestRunner
                 ///////////////////////////////////////////////////////////////////////////////////////////
                 // Execute via remote AppDomain
 
-                action(remoteExecutor);
+                await action(remoteExecutor);
 
                 ///////////////////////////////////////////////////////////////////////////////////////////
             }
@@ -135,16 +138,16 @@ namespace Persimmon.VisualStudio.TestRunner
         /// </summary>
         /// <param name="targetAssemblyPath">Target assembly path</param>
         /// <param name="sink">Execution logger interface</param>
-        public void Discover(
+        public Task DiscoverAsync(
             string targetAssemblyPath,
             ITestDiscoverSink sink)
         {
             Debug.Assert(!string.IsNullOrWhiteSpace(targetAssemblyPath));
             Debug.Assert(sink != null);
 
-            this.Execute(
+            return this.ExecuteAsync(
                 targetAssemblyPath,
-                executor => executor.Discover(
+                executor => executor.DiscoverAsync(
                     targetAssemblyPath,
                     new DiscoverSinkTrampoline(targetAssemblyPath, sink)));
         }
@@ -153,25 +156,30 @@ namespace Persimmon.VisualStudio.TestRunner
         /// Test execute target assembly.
         /// </summary>
         /// <param name="targetAssemblyPath">Target assembly path</param>
-        /// <param name="fullyQualifiedTestNames">Target test names. Run all tests if empty.</param>
+        /// <param name="testCases">Target test cases.</param>
         /// <param name="sink">Execution logger interface</param>
-        public void Run(
+        /// <param name="token">CancellationToken</param>
+        public Task RunAsync(
             string targetAssemblyPath,
-            IEnumerable<string> fullyQualifiedTestNames,
-            ITestRunSink sink)
+            ICollection<TestCase> testCases,
+            ITestRunSink sink,
+            CancellationToken token)
         {
             Debug.Assert(!string.IsNullOrWhiteSpace(targetAssemblyPath));
-            Debug.Assert(fullyQualifiedTestNames != null);
+            Debug.Assert(testCases != null);
             Debug.Assert(sink != null);
+            Debug.Assert(token != null);
 
-            // TODO: where testCases? from TestAdapter's TestCase types...
-
-            this.Execute(
+            var fullyQualifiedTestNames = testCases.Select(testCase => testCase.FullyQualifiedName).ToArray();
+            var testCaseDicts = testCases.ToDictionary(testCase => testCase.FullyQualifiedName);
+            
+            return this.ExecuteAsync(
                 targetAssemblyPath,
-                executor => executor.Run(
+                executor => executor.RunAsync(
                     targetAssemblyPath,
-                    fullyQualifiedTestNames.ToArray(),
-                    new RunSinkTrampoline(targetAssemblyPath, sink, testCases)));
+                    fullyQualifiedTestNames,
+                    new RunSinkTrampoline(targetAssemblyPath, sink, testCaseDicts),
+                    token));
         }
     }
 }
